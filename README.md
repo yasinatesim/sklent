@@ -1,21 +1,68 @@
-# Vela Commerce
+<h3 align="center">
+  <br />
+   <a href="https://github.com/yasinatesim/vela-commerce"><img src=".github/assets/logo.svg" alt="Vela Commerce" width="200" /></a>
+  <br />
+Vela Commerce
+  <br />
+</h3>
 
-> An open-source, **AI-agent-driven** e-commerce reference platform.
-> A brandless, generic distillation of a real production storefront — built to show *how* a
-> single developer can grow and maintain a full commerce platform with a disciplined
-> ecosystem of Claude Code agents, skills, hooks and a BRAID reasoning model.
+<hr />
 
-Vela Commerce is the companion repository to the article
-**"AI Agent'lar ile Sıfırdan Uçtan Uca E-Ticaret Projesi Geliştirme"**. It is intentionally
-**unbranded** and runnable end-to-end with a single `docker compose up`.
+<p align="center">An open-source, AI-agent-driven e-commerce reference platform — a brandless distillation of a real production storefront, built to show how a single developer can grow and maintain a full commerce platform with a disciplined ecosystem of Claude Code agents, skills, hooks and a BRAID reasoning model.</p>
 
-The point of this repo is **not** the code. The point is the *agent ecosystem* that produces and
-guards the code: constraints, facts, steps and checks, wired so that doing the wrong thing is
-mechanically impossible.
+<p align="center">
+· <a href="./README.tr.md">🇹🇷 Türkçe</a>
+· <a href="https://github.com/yasinatesim/vela-commerce/issues">Issues</a>
+· <a href="./CONTRIBUTING.md">Contributing</a>
+· <a href="https://github.com/yasinatesim/vela-commerce/blob/master/LICENSE">License</a>
+</p>
 
----
+## 📖 About
 
-## What's inside
+Vela Commerce is the companion repository to the article **"AI Agent'lar ile Sıfırdan Uçtan Uca E-Ticaret Projesi Geliştirme"**. It is intentionally **unbranded** and runnable end-to-end with a single `docker compose up`.
+
+The point of this repo is **not** the code. The point is the *agent ecosystem* that produces and guards the code: constraints, facts, steps and checks, wired so that doing the wrong thing is mechanically impossible.
+
+> **Presence ≠ completeness.** Marketplace sync, payment and invoice are reference skeletons. Inspect the code before assuming any external push/import path works end to end.
+
+### 📚 Tech Stack
+
+<table>
+<tr>
+  <td> <a href="https://go.dev">Go 1.25</a></td>
+  <td>Backend API with Gin, GORM and PostgreSQL 16.</td>
+</tr>
+<tr>
+  <td> <a href="https://nextjs.org">Next.js</a></td>
+  <td>React 19 storefront + admin, CSS Modules + SCSS, no Tailwind.</td>
+</tr>
+<tr>
+  <td> <a href="https://next-intl.dev">next-intl</a></td>
+  <td>JSON-driven i18n, Turkish + English.</td>
+</tr>
+<tr>
+  <td> <a href="https://www.postgresql.org">PostgreSQL 16</a></td>
+  <td>Catalog, orders, stock and per-channel counters.</td>
+</tr>
+<tr>
+  <td> <a href="https://www.trychroma.com">ChromaDB</a></td>
+  <td>Vector retrieval for RAG-backed product copy generation.</td>
+</tr>
+<tr>
+  <td> <a href="https://www.iyzico.com">Iyzico</a></td>
+  <td>3D Secure payment integration (sandbox).</td>
+</tr>
+<tr>
+  <td> <a href="https://www.docker.com">Docker Compose</a></td>
+  <td>Postgres + ChromaDB + Go API + Next.js web, one command up.</td>
+</tr>
+<tr>
+  <td> <a href="https://docs.claude.com/en/docs/claude-code">Claude Code</a></td>
+  <td>Agents, skills, hooks and the BRAID reasoning model that build and guard the repo.</td>
+</tr>
+</table>
+
+## 🧐 What's inside?
 
 | Area | Choice |
 |---|---|
@@ -31,30 +78,25 @@ mechanically impossible.
 | Email | SMTP + templated order/shipping mails, sent off the request path |
 | Deploy | `docker compose up`: Postgres + ChromaDB + Go API + Next.js web |
 
-> **Presence ≠ completeness.** Marketplace sync, payment and invoice are reference skeletons.
-> Inspect the code before assuming any external push/import path works end to end.
-
----
-
-## The agent ecosystem
+### The agent ecosystem
 
 Everything lives under [`.claude/`](.claude):
 
-- **`agents/`** — `braid-solver`, `constants-guard`, `wtf-code-reviewer` (dispatcher) and the
-  language/domain reviewers `wtf-go`, `wtf-js-react`, `wtf-security`, `wtf-ux-playwright`, plus
-  `issue-auditor`.
-- **`skills/`** — `braid-plan`, `spec-driven-development`, `coverage-gate`,
-  `playwright-snapshot`, `ship-pr`, `issue-create`, `security-pentest`, and the reviewer skills.
-- **`references/`** — language-agnostic coding standards, backend/frontend standards, security
-  standards, git-flow, and the BRAID mental model.
-- **`hooks/`** — shell scripts that make the rules impossible to skip (no aliased Go imports,
-  no direct commits to protected branches, no agent-initiated merges, no long comments…).
+- **`agents/`** — `braid-solver`, `constants-guard`, `wtf-code-reviewer` (dispatcher) and the language/domain reviewers `wtf-go`, `wtf-js-react`, `wtf-security`, `wtf-ux-playwright`, plus `issue-auditor`.
+- **`skills/`** — `braid-plan`, `spec-driven-development`, `coverage-gate`, `playwright-snapshot`, `ship-pr`, `issue-create`, `security-pentest`, and the reviewer skills.
+- **`references/`** — language-agnostic coding standards, backend/frontend standards, security standards, git-flow, and the BRAID mental model.
+- **`hooks/`** — shell scripts that make the rules impossible to skip (no aliased Go imports, no direct commits to protected branches, no agent-initiated merges, no long comments…).
 
 [`CLAUDE.md`](CLAUDE.md) is loaded into every session and is the single source of project rules.
 
----
+## Getting Started
 
-## Quick start
+### 📦 Prerequisites
+
+- [Docker](https://www.docker.com) + Docker Compose
+- [Go 1.25+](https://go.dev) and [Node.js 20+](https://nodejs.org) (only for local development without Docker)
+
+### ⚙️ How To Use
 
 ```bash
 cp .env.example .env
@@ -63,31 +105,17 @@ docker compose run --rm api ./bin/seed   # 8 categories, 25 products, admin user
 open http://localhost:3100/tr  # storefront (TR/EN, green theme, light/dark)
 ```
 
-Default admin (seed): `admin@vela.test` / `admin12345`. Sign in at `/tr/giris`; admins land on
-`/tr/admin` (dashboard, products with a full create form, campaigns, coupons, orders).
+Default admin (seed): `admin@vela.test` / `admin12345`. Sign in at `/tr/giris`; admins land on `/tr/admin` (dashboard, products with a full create form, campaigns, coupons, orders).
 
-### Storefront
-
-Home (hero + category grid + best-sellers), category listing, product detail with quantity +
-add-to-cart, cart with savings, a two-step checkout (address → card preview → pay), order
-success, live search, auth, a gift-coupon modal and a theme toggle — all driven from the Go API
-and translated through `next-intl` (TR/EN).
-
-The pixel reference for the visual design is [`index.html`](index.html), a single-file static
-prototype. The Next.js app under [`web/`](web) is the real, componentised implementation of it.
-
-### Verify like an agent would
+**Verify like an agent would:**
 
 ```bash
 node e2e/verify.mjs            # drives a real browser: login, add product, see it in store
 ```
 
-The verify script trusts the **screen the user sees**, not the API response. Green here means
-the flow actually works.
+The verify script trusts the **screen the user sees**, not the API response. Green here means the flow actually works.
 
----
-
-## Local development (without Docker)
+**Local development (without Docker):**
 
 ```bash
 # Backend
@@ -97,24 +125,12 @@ cd api && go build ./... && go vet ./... && go test ./...
 cd web && npm install && npm run dev
 ```
 
----
+## 🔑 License
 
-## Where the ideas come from
+* Copyright © 2026 - MIT License.
 
-This ecosystem was not invented in a vacuum. It was adapted from public work:
-
-- [Claude Code — Subagents](https://docs.claude.com/en/docs/claude-code/sub-agents)
-- [Claude Code — Agent Skills](https://docs.claude.com/en/docs/claude-code/skills)
-- [Claude Code — Hooks](https://docs.claude.com/en/docs/claude-code/hooks)
-- [Anthropic Cookbook](https://github.com/anthropics/anthropic-cookbook)
-- [mukul975/Anthropic-Cybersecurity-Skills](https://github.com/mukul975/Anthropic-Cybersecurity-Skills) — inspiration for the `security-pentest` skill family
-- [BRAID: Bounded Reasoning for Autonomous Inference and Decisions (arXiv 2512.15959)](https://arxiv.org/abs/2512.15959)
-
-Each agent, skill and reference file carries its own attribution where relevant. The goal is an
-ecosystem you can read, not a black box.
+See [LICENSE](https://github.com/yasinatesim/vela-commerce/blob/master/LICENSE) for more information.
 
 ---
 
-## License
-
-MIT — see [LICENSE](LICENSE).
+_This README was generated with by [markdown-manager](https://github.com/yasinatesim/markdown-manager)_ 🥲
