@@ -1,0 +1,37 @@
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.qty {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.qty button {
+  width: 38px;
+  height: 38px;
+  border: 0;
+  background: var(--surface);
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--fg);
+  transition: 0.15s;
+}
+
+.qty button:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.qty span {
+  width: 40px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 16px;
+}

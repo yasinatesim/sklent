@@ -1,0 +1,47 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm *)",
+      "Bash(go *)",
+      "Bash(docker compose *)",
+      "Bash(make *)",
+      "Bash(git *)",
+      "Bash(gh *)",
+      "Bash(.claude/hooks/*)"
+    ],
+    "deny": ["Bash(rm -rf /*)"]
+  },
+
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "filePattern": "api/**/*.go",
+        "hooks": [
+          { "type": "command", "command": ".claude/hooks/post-edit-go.sh" },
+          { "type": "command", "command": ".claude/hooks/no-long-comments.sh" },
+          { "type": "command", "command": ".claude/hooks/constants-guard-trigger.sh" }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "filePattern": "web/src/**/*.{ts,tsx}",
+        "hooks": [
+          { "type": "command", "command": ".claude/hooks/post-edit-ts.sh" },
+          { "type": "command", "command": ".claude/hooks/no-long-comments.sh" },
+          { "type": "command", "command": ".claude/hooks/constants-guard-trigger.sh" }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": ".claude/hooks/pre-commit-verify.sh" },
+          { "type": "command", "command": ".claude/hooks/enforce-branch-base.sh" },
+          { "type": "command", "command": ".claude/hooks/block-pr-merge.sh" }
+        ]
+      }
+    ]
+  }
+}
