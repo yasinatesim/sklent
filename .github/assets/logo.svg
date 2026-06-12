@@ -1,0 +1,29 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Vela Commerce">
+  <defs>
+    <linearGradient id="vela-bg" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#10b981"/>
+      <stop offset="1" stop-color="#047857"/>
+    </linearGradient>
+    <linearGradient id="vela-sail" x1="60" y1="28" x2="150" y2="150" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#d1fae5"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="200" height="200" rx="44" fill="url(#vela-bg)"/>
+
+  <!-- mast -->
+  <rect x="97" y="30" width="6" height="118" rx="3" fill="#ffffff" opacity="0.85"/>
+
+  <!-- main sail (the "vela") -->
+  <path d="M100 34 C 138 70, 150 112, 142 146 L100 146 Z" fill="url(#vela-sail)"/>
+
+  <!-- fore sail -->
+  <path d="M92 52 C 70 84, 62 116, 64 146 L92 146 Z" fill="#ffffff" opacity="0.92"/>
+
+  <!-- hull -->
+  <path d="M48 152 L152 152 C 146 172, 128 182, 100 182 C 72 182, 54 172, 48 152 Z" fill="#ffffff"/>
+
+  <!-- waves -->
+  <path d="M40 166 q 12 10 24 0 t 24 0 t 24 0 t 24 0 t 24 0" stroke="#ffffff" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.55"/>
+</svg>
