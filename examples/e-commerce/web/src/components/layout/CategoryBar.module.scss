@@ -1,0 +1,47 @@
+.bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: var(--header-h);
+  z-index: 99;
+  overflow-x: auto;
+  scrollbar-width: none;
+  transition: background 0.3s;
+}
+
+.bar::-webkit-scrollbar {
+  display: none;
+}
+
+.inner {
+  display: flex;
+  gap: 4px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.link {
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg-2);
+  white-space: nowrap;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.link:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.active {
+  background: var(--accent);
+  color: var(--accent-on);
+}
+
+.active:hover {
+  background: var(--accent);
+  color: var(--accent-on);
+}

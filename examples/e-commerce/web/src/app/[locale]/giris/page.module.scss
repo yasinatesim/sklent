@@ -1,0 +1,72 @@
+.box {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 40px 0;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 8px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.desc {
+  text-align: center;
+  color: var(--muted);
+  margin-bottom: 28px;
+}
+
+.group {
+  margin-bottom: 16px;
+}
+
+.group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--fg-2);
+}
+
+.group input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  background: var(--bg);
+  outline: none;
+  color: var(--fg);
+}
+
+.group input:focus {
+  border-color: var(--accent);
+}
+
+.full {
+  width: 100%;
+  justify-content: center;
+}
+
+.switch {
+  text-align: center;
+  font-size: 14px;
+  color: var(--fg-2);
+  margin-top: 16px;
+}
+
+.switch button {
+  color: var(--accent);
+  font-weight: 600;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.hint {
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 12px;
+}

@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [development, master]
+
+permissions:
+  contents: read
+
+jobs:
+  filter:
+    name: Detect changed paths
+    runs-on: self-hosted
+    timeout-minutes: 5
+    outputs:
+      backend: ${{ steps.changes.outputs.backend }}
+      frontend: ${{ steps.changes.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 1
+      - uses: dorny/paths-filter@d1c1ffe0248fe513906c8e24db8ea791d46f8590 # v3
+        id: changes
+        with:
+          filters: |
+            backend:
+              - 'examples/e-commerce/api/**'
+            frontend:
+              - 'examples/e-commerce/web/**'
+
+  backend:
+    name: Backend (Go)
+    needs: filter
+    if: needs.filter.outputs.backend == 'true'
+    runs-on: self-hosted
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: examples/e-commerce/api
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5
+        with:
+          go-version: '1.25'
+      - run: go build ./...
+      - run: go vet ./...
+      - run: go test -cover ./...
+
+  frontend:
+    name: Frontend (Next.js)
+    needs: filter
+    if: needs.filter.outputs.frontend == 'true'
+    runs-on: self-hosted
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: examples/e-commerce/web
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4
+        with:
+          node-version: '24'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run type-check
+      - run: npm test

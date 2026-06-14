@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-vela}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-vela}
+      POSTGRES_DB: ${POSTGRES_DB:-vela}
+    ports:
+      - "5532:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-vela}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  chromadb:
+    image: chromadb/chroma:0.5.20
+    ports:
+      - "8000:8000"
+    volumes:
+      - chromadata:/chroma/chroma
+
+  api:
+    build: ./api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-vela}:${POSTGRES_PASSWORD:-vela}@postgres:5432/${POSTGRES_DB:-vela}?sslmode=disable
+      CHROMA_URL: http://chromadb:8000
+    ports:
+      - "8100:8100"
+
+  web:
+    build: ./web
+    depends_on:
+      - api
+    env_file: .env
+    environment:
+      INTERNAL_API_URL: http://api:8100
+    ports:
+      - "3100:3000"
+
+volumes:
+  pgdata:
+  chromadata:

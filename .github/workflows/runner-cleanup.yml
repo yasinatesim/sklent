@@ -1,0 +1,23 @@
+name: Runner cleanup
+
+# Self-hosted runners accumulate stopped containers, dangling images and build cache.
+# A shared GitHub runner is ephemeral; ours is not. Clean it on a schedule.
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: self-hosted
+    timeout-minutes: 10
+    steps:
+      - name: Prune docker
+        run: |
+          docker container prune -f
+          docker image prune -af --filter "until=72h"
+          docker builder prune -af --filter "until=72h"
+          docker volume prune -f
+      - name: Report disk
+        run: df -h /

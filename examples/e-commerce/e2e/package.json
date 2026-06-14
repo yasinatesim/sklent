@@ -1,0 +1,11 @@
+{
+  "name": "vela-commerce-e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "verify": "node verify.mjs"
+  },
+  "dependencies": {
+    "playwright": "1.49.1"
+  }
+}

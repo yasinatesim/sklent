@@ -1,0 +1,138 @@
+.page {
+  padding: 32px 0 60px;
+}
+
+.backBar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.back {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--fg-2);
+  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.items {
+  list-style: none;
+  max-width: 640px;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 60px 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.thumb {
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+}
+
+.itemTitle {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.itemPrice {
+  font-size: 14px;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.itemActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.itemActions button {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  display: grid;
+  place-items: center;
+  transition: 0.15s;
+}
+
+.itemActions button:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.remove {
+  width: auto !important;
+  padding: 0 10px !important;
+  font-size: 12px !important;
+  color: var(--muted);
+}
+
+.qtyValue {
+  font-weight: 600;
+  min-width: 24px;
+  text-align: center;
+  font-size: 15px;
+}
+
+.summary {
+  max-width: 640px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  border-top: 2px solid var(--fg);
+  margin-top: 8px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.total {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.total small {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.savings {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.empty {
+  text-align: center;
+  padding: 80px 0;
+  color: var(--muted);
+}
+
+.empty h2 {
+  margin: 16px 0 8px;
+  color: var(--fg);
+}

@@ -1,0 +1,21 @@
+# env
+.env
+*.env.local
+
+# go
+/api/bin/
+*.test
+*.out
+
+# node / next
+node_modules/
+/web/.next/
+/web/out/
+*.tsbuildinfo
+
+# artifacts
+.local-artifacts/
+.DS_Store
+
+# chroma local volume
+/.chroma/
