@@ -40,4 +40,4 @@ A short report: subsystem, each claim, its bucket, and the file:line evidence. C
 
 Adapted from `pm-ai-shipping/intended-vs-implemented` in
 [phuryn/pm-skills](https://github.com/phuryn/pm-skills) (MIT License, © 2026 Pawel Huryn).
-Rewritten for this repo's stack and caveman-lite style.
+Rewritten for this repo's stack and caveman style.
