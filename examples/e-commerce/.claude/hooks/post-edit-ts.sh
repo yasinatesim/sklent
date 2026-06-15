@@ -12,6 +12,6 @@ esac
 
 [ -f "$file" ] || exit 0
 
-WEB_DIR="examples/e-commerce/web"
+WEB_DIR="web"
 ( cd "$WEB_DIR" && npm exec eslint "${file#*"$WEB_DIR"/}" ) >&2 || echo "eslint warnings in $file (non-blocking)" >&2
 exit 0

@@ -16,7 +16,7 @@
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
-        "filePattern": "examples/e-commerce/api/**/*.go",
+        "filePattern": "api/**/*.go",
         "hooks": [
           { "type": "command", "command": ".claude/hooks/post-edit-go.sh" },
           { "type": "command", "command": ".claude/hooks/no-long-comments.sh" },
@@ -25,7 +25,7 @@
       },
       {
         "matcher": "Edit|Write",
-        "filePattern": "examples/e-commerce/web/src/**/*.{ts,tsx}",
+        "filePattern": "web/src/**/*.{ts,tsx}",
         "hooks": [
           { "type": "command", "command": ".claude/hooks/post-edit-ts.sh" },
           { "type": "command", "command": ".claude/hooks/no-long-comments.sh" },

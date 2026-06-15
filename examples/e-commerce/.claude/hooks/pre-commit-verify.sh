@@ -24,8 +24,8 @@ case "$branch" in
     exit 2 ;;
 esac
 
-API_DIR="examples/e-commerce/api"
-WEB_DIR="examples/e-commerce/web"
+API_DIR="api"
+WEB_DIR="web"
 if [ -d "$API_DIR" ]; then
   ( cd "$API_DIR" && go build ./... && go vet ./... && go test ./... ) >&2 || { echo "api verify lane FAILED" >&2; exit 2; }
 fi

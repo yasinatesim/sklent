@@ -8,11 +8,9 @@ Loaded into every session. Caveman-lite: short, imperative, no filler.
 + hooks + the BRAID reasoning model) that you drop into any project to build and guard production
 code. The headline is [`.claude/`](.claude), not the app.
 
-To prove the ecosystem works end to end, it ships with one large worked example under
-[`examples/e-commerce/`](examples/e-commerce): a generic, open-source e-commerce platform
-("Vela Commerce") — own order + payment + admin panel, internal + per-channel stock, 15-min
+This is a generic, open-source e-commerce platform — own order + payment + admin panel, internal + per-channel stock, 15-min
 checkout reservation, two marketplace skeleton clients (`hb`, `ty`), LLM/RAG product copy, Iyzico
-3D Secure sandbox, GIB e-Arşiv invoice proxy. Paths below are relative to `examples/e-commerce/`.
+3D Secure sandbox, GIB e-Arşiv invoice proxy. Paths below are relative to the project root.
 
 ## Stack
 
@@ -49,8 +47,8 @@ checkout reservation, two marketplace skeleton clients (`hb`, `ty`), LLM/RAG pro
 
 ## Verification (before claiming done)
 
-Backend: `cd examples/e-commerce/api && go build ./... && go vet ./... && go test ./...`.
-Frontend: `cd examples/e-commerce/web && npm run lint && npm run type-check && npm test`.
+Backend: `cd api && go build ./... && go vet ./... && go test ./...`.
+Frontend: `cd web && npm run lint && npm run type-check && npm test`.
 UI: dev server up + Playwright snapshot saved.
 Before claiming a subsystem "done": run the `intended-vs-implemented` skill (docs vs code gap).
 

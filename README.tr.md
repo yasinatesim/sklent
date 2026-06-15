@@ -23,7 +23,7 @@ Sklent bir uygulama **değildir**. Uygulamaları **üreten ve denetleyen ekosist
 kurallarını "umut etmek" yerine mekanik olarak zorunlu kılan Claude Code agent'ları, skill'leri,
 reference'ları ve hook'ları.
 
-Tüm mesele [`.claude/`](.claude) altında. Gerçek bir şey üzerinde çalıştığını kanıtlamak için repo,
+Tüm mesele [`examples/e-commerce/.claude/`](examples/e-commerce/.claude) altında. Gerçek bir şey üzerinde çalıştığını kanıtlamak için repo,
 [`examples/e-commerce/`](examples/e-commerce) altında markasız, full-stack bir e-ticaret platformu
 örneğiyle birlikte gelir.
 
@@ -35,9 +35,11 @@ adımı besler. Düz bir yapılacaklar listesi "başarısız olunca ne olacak" d
 BRAID (*Bounded Reasoning for Autonomous Inference and Decisions*, arXiv 2512.15959) bir işi dört
 düğüm tipinden oluşan bir grafiğe böler — **Constraint**, **Fact**, **Step**, **Check** — ve her
 Check'in tam iki çıkışı vardır: **Pass** ve **Fail**. Fail kenarı önceki bir Step'e döner; döngünün
-kendisi retry'dır. Bkz. [`.claude/references/braid-mental-model.md`](.claude/references/braid-mental-model.md).
+kendisi retry'dır. Bkz. [`examples/e-commerce/.claude/references/braid-mental-model.md`](examples/e-commerce/.claude/references/braid-mental-model.md).
 
 ## 🤖 Agent ekosistemi
+
+Tümü [`examples/e-commerce/.claude/`](examples/e-commerce/.claude) altında:
 
 - **`agents/`** — `wtf-code-reviewer` (dispatcher) diff'i `wtf-go`, `wtf-js-react`,
   `wtf-security`, `wtf-ux-playwright`'a paralel yönlendirir; ayrıca `braid-solver`,
@@ -59,7 +61,7 @@ RAG ürün metni, GIB e-Arşiv fatura proxy'si, marketplace iskeletleri. Bkz.
 
 ## 🔍 Fikirler nereden geliyor
 
-Açık kaynaktan uyarlandı; atıf her agent/skill içinde:
+Açık kaynaktan uyarlandı; atıf her agent/skill içinde. Proje konsepti ve BRAID entegrasyon yaklaşımı [proje manifestosunda](https://gist.github.com/yasinatesim/bd5230ca0cc9b033c16280813c3ce6ff) belgelenmiştir:
 
 - [Claude Code — Subagents](https://docs.claude.com/en/docs/claude-code/sub-agents)
 - [Claude Code — Agent Skills](https://docs.claude.com/en/docs/claude-code/skills)

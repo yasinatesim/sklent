@@ -2,7 +2,7 @@
 # Runs on every *.go edit. gofmt + named-import alias check + go vet on the package. Block on fail.
 set -euo pipefail
 
-API_DIR="examples/e-commerce/api"
+API_DIR="api"
 
 input="$(cat)"
 file="$(printf '%s' "$input" | grep -oE '"file_path"[^,]*' | head -1 | sed -E 's/.*:\s*"([^"]+)".*/\1/' || true)"
