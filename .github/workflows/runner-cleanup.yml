@@ -1,7 +1,6 @@
 name: Runner cleanup
 
-# Self-hosted runners accumulate stopped containers, dangling images and build cache.
-# A shared GitHub runner is ephemeral; ours is not. Clean it on a schedule.
+# Self-hosted only pays off on a PRIVATE repo (metered Actions minutes); this repo is public, so ci.yml uses ubuntu-latest and this workflow has no runner to target.
 
 on:
   schedule:
