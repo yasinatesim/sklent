@@ -85,8 +85,9 @@ Building a production-grade e-commerce platform requires coordinating many subsy
 |---|---|---|
 | ORD-01 | Guest order tracking via unguessable token | P0 |
 | ORD-02 | Member order history (list + detail) | P0 |
-| ORD-03 | Admin order listing with status | P1 |
+| ORD-03 | Admin order listing with status filter, pagination | P0 |
 | ORD-04 | Order email notification (async goroutine) | P1 |
+| ORD-05 | Admin order status update (paid/shipped/cancelled) with shipping tracking number | P0 |
 
 ### 5.6 Stock Reservations
 
@@ -106,7 +107,7 @@ Building a production-grade e-commerce platform requires coordinating many subsy
 | PRO-04 | Minimum cart threshold | P0 |
 | PRO-05 | Coupon engine with unique codes | P0 |
 | PRO-06 | Pure deterministic `Evaluate()` function with no side effects | P0 |
-| PRO-07 | Admin coupon/promotion management in admin panel | P1 |
+| PRO-07 | Admin coupon/promotion management: full CRUD (create, list, toggle active, delete) via `/admin/promotions` and `/admin/coupons` | P0 |
 
 ### 5.8 Marketplace Integration
 
@@ -140,6 +141,8 @@ Building a production-grade e-commerce platform requires coordinating many subsy
 | EML-01 | Order confirmation email on placement (async) | P1 |
 | EML-02 | SMTP configuration support | P1 |
 | EML-03 | Log-only fallback when no SMTP configured | P1 |
+| EML-04 | Password reset email with time-limited token (async) | P1 |
+| EML-05 | Low-stock alert email to admin when product stock crosses its threshold (async) | P1 |
 
 ### 5.12 Admin Panel
 
@@ -147,9 +150,11 @@ Building a production-grade e-commerce platform requires coordinating many subsy
 |---|---|---|
 | ADM-01 | Dashboard with stats, weekly orders chart, recent orders | P0 |
 | ADM-02 | Product management: list + create form | P0 |
-| ADM-03 | Campaign management | P1 |
-| ADM-04 | Coupon management | P1 |
-| ADM-05 | Order listing | P1 |
+| ADM-03 | Campaign (promotion) management: full CRUD | P0 |
+| ADM-04 | Coupon management: full CRUD | P0 |
+| ADM-05 | Order listing with status update + tracking number | P0 |
+| ADM-06 | Manual stock tracking: name + quantity ledger, independent of catalog stock | P0 |
+| ADM-07 | Review moderation: approve/reject pending product reviews | P1 |
 
 ### 5.13 Internationalization
 
@@ -218,12 +223,12 @@ Building a production-grade e-commerce platform requires coordinating many subsy
 4. Manage campaigns and coupons
 5. View all orders
 
-## 8. Out of Scope (v1)
+## 8. Out of Scope (v2)
 
 - Image upload and CDN integration
 - Product variants (size, color, etc.)
 - Wishlist / favorites
-- Product reviews and ratings
+- Product review star aggregation / storefront review display (v2 adds submit + admin moderation only, see ADM-07)
 - Automatic reservation cleanup cron
 - Marketplace publish wiring (end-to-end)
 - Real invoice generation (server-side)
@@ -234,6 +239,7 @@ Building a production-grade e-commerce platform requires coordinating many subsy
 - PWA
 - WebSocket / real-time notifications
 - SSO / OAuth providers
+- Customer management, content/banner management, analytics dashboard, audit log (present in the private reference project this repo is adapted from; not yet ported)
 
 ## 9. Technical Architecture
 
@@ -277,6 +283,9 @@ Building a production-grade e-commerce platform requires coordinating many subsy
 | Reservation | id, order_id, product_id, quantity, expires_at, committed_at, released_at |
 | Promotion | id, name, discount_type, discount_value, scope_type, product_ids, category_ids, min_cart_cents, active |
 | Coupon | id, code, discount_type, discount_value, scope_type, min_cart_cents, active |
+| StockTrackingItem | id, product_name, quantity |
+| Review | id, product_id, author_name, rating, comment, status (pending/approved/rejected) |
+| PasswordResetToken | id, user_id, token_hash, expires_at, used_at |
 
 All IDs are UUIDs. Timestamps: created_at, updated_at on every entity.
 
@@ -298,7 +307,27 @@ All IDs are UUIDs. Timestamps: created_at, updated_at on every entity.
 | GET | /orders | RequireAuth | Member order list |
 | GET | /orders/:id | RequireAuth | Member order detail |
 | POST | /payments/iyzico/callback | None | Iyzico 3DS callback |
+| POST | /auth/password/forgot | Rate-limited | Request password reset email |
+| POST | /auth/password/reset | Rate-limited | Reset password with token |
+| GET | /products/:slug/reviews | None | List approved reviews for a product |
+| POST | /products/:slug/reviews | CSRF | Submit a review (pending moderation) |
 | POST | /admin/products | Admin+CSRF | Create product |
+| GET | /admin/promotions | Admin+CSRF | List promotions |
+| POST | /admin/promotions | Admin+CSRF | Create promotion |
+| PATCH | /admin/promotions/:id | Admin+CSRF | Toggle/update promotion |
+| DELETE | /admin/promotions/:id | Admin+CSRF | Delete promotion |
+| GET | /admin/coupons | Admin+CSRF | List coupons |
+| POST | /admin/coupons | Admin+CSRF | Create coupon |
+| PATCH | /admin/coupons/:id | Admin+CSRF | Toggle/update coupon |
+| DELETE | /admin/coupons/:id | Admin+CSRF | Delete coupon |
+| GET | /admin/orders | Admin+CSRF | List orders (status filter, pagination) |
+| PATCH | /admin/orders/:id/status | Admin+CSRF | Update order status + tracking number |
+| GET | /admin/stock-tracking | Admin+CSRF | List manual stock tracking rows |
+| POST | /admin/stock-tracking | Admin+CSRF | Create stock tracking row |
+| PATCH | /admin/stock-tracking/:id | Admin+CSRF | Update stock tracking row |
+| DELETE | /admin/stock-tracking/:id | Admin+CSRF | Delete stock tracking row |
+| GET | /admin/reviews | Admin+CSRF | List reviews (all statuses) |
+| PATCH | /admin/reviews/:id/status | Admin+CSRF | Approve/reject a review |
 
 ## 12. Dependencies
 

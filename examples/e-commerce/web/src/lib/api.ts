@@ -40,7 +40,7 @@ const readCookie = (name: string): string => {
   return match ? decodeURIComponent(match[1]) : "";
 };
 
-const primeCsrf = async (): Promise<string> => {
+export const primeCsrf = async (): Promise<string> => {
   let csrf = readCookie("csrf_token");
   if (csrf) return csrf;
   await fetch(`${API_BASE}/healthz`, { credentials: "include" });
