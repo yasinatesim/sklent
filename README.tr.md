@@ -15,6 +15,7 @@
 · <a href="./examples/e-commerce">🛒 E-ticaret örneği</a>
 · <a href="./CONTRIBUTING.md">Katkı</a>
 · <a href="./LICENSE">Lisans</a>
+· <a href="https://medium.com/@yasinatesim/ai-agentlarla-s%C4%B1f%C4%B1rdan-u%C3%A7tan-uca-e-ticaret-projesi-geli%C5%9Ftirmek-braid-mimarisi-ve-mermeid-3cafd5b53f9a">📝 Yazı</a>
 </p>
 
 ## Sklent nedir?
@@ -62,7 +63,7 @@ cd examples/e-commerce && cp .env.example .env && docker compose up --build
 
 ## Fikirler nereden geliyor
 
-Açık kaynaktan uyarlandı, atıf her agent ve skill içinde. Proje konsepti ve BRAID entegrasyon yaklaşımı [proje manifestosunda](https://gist.github.com/yasinatesim/bd5230ca0cc9b033c16280813c3ce6ff) belgelenmiştir:
+Açık kaynaktan uyarlandı, atıf her agent ve skill içinde. Proje konsepti ve BRAID entegrasyon yaklaşımı [proje manifestosunda](https://gist.github.com/yasinatesim/bd5230ca0cc9b033c16280813c3ce6ff) belgelenmiştir; tüm sürecin uçtan uca anlatıldığı yazı için [bu makaleye](https://medium.com/@yasinatesim/ai-agentlarla-s%C4%B1f%C4%B1rdan-u%C3%A7tan-uca-e-ticaret-projesi-geli%C5%9Ftirmek-braid-mimarisi-ve-mermeid-3cafd5b53f9a) bakabilirsiniz:
 
 - [Claude Code: Subagents](https://docs.claude.com/en/docs/claude-code/sub-agents)
 - [Claude Code: Agent Skills](https://docs.claude.com/en/docs/claude-code/skills)
