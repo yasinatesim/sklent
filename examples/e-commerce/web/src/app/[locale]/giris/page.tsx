@@ -79,6 +79,11 @@ const AuthPage = () => {
             {isRegister ? t("login") : t("register")}
           </button>
         </div>
+        {!isRegister ? (
+          <div className={styles.switch}>
+            <a href={`/${locale}/sifremi-unuttum`}>{t("forgotPasswordLink")}</a>
+          </div>
+        ) : null}
         <p className={styles.hint}>{t("adminHint")}</p>
       </div>
     </main>

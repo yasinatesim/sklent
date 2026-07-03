@@ -18,7 +18,7 @@ checkout reservation, two marketplace skeleton clients (`hb`, `ty`), LLM/RAG pro
 |---|---|
 | Backend | Go 1.25, Gin, GORM, PostgreSQL 16 |
 | Frontend | Next.js, React 19, CSS Modules + SCSS, next-intl (TR + EN, JSON-driven) |
-| Admin | `/admin` panel for catalog, promotions, coupons, orders |
+| Admin | `/admin` panel for catalog, promotions, coupons, orders (status + tracking), manual stock tracking, review moderation |
 | Auth | JWT 15m access + 7d rotating refresh, httpOnly cookie, CSRF, rate limit |
 | Marketplace | Clients in `api/internal/marketplace/{hb,ty}` — partial; verify before claiming sync works |
 | LLM | Pluggable provider registry under `api/internal/llm/`; AES-256-GCM encrypted API keys |
@@ -27,7 +27,7 @@ checkout reservation, two marketplace skeleton clients (`hb`, `ty`), LLM/RAG pro
 | Invoice | GIB e-Arşiv proxy concept. Verify before referencing |
 | Cart | Guest (session cookie) + member; Zustand; 15-min reservation hold |
 | Promotions | Percent/fixed-TL, cart/product/category scope, coupon engine |
-| Email | SMTP + React-Email-style templates, sent off the request path |
+| Email | SMTP + React-Email-style templates, sent off the request path. Order confirmation, password reset, low-stock alert |
 | Deploy | `docker compose up`: Postgres + ChromaDB + API + web |
 
 ## Non-negotiable Rules
@@ -84,8 +84,8 @@ Before claiming a subsystem "done": run the `intended-vs-implemented` skill (doc
 
 ## Routes
 
-- Admin EN: `/admin/promotions`, `/admin/coupons`, `/admin/orders`
-- Public TR: `/sepet`, `/odeme`, `/siparis`, `/kategori`, `/urun`, `/arama`
+- Admin TR: `/admin/urunler`, `/admin/kampanyalar`, `/admin/kuponlar`, `/admin/siparisler`, `/admin/stok-takibi`, `/admin/yorumlar`
+- Public TR: `/sepet`, `/odeme`, `/siparis`, `/kategori`, `/urun`, `/arama`, `/giris`, `/sifremi-unuttum`, `/sifre-sifirla`
 
 ## Security testing
 

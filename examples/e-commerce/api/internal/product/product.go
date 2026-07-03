@@ -41,6 +41,30 @@ func (r *Repo) Create(ctx context.Context, p *productmodels.Product) error {
 	return r.db.WithContext(ctx).Create(p).Error
 }
 
+func (r *Repo) GetIDBySlug(ctx context.Context, slug string) (string, error) {
+	p, err := r.GetBySlug(ctx, slug)
+	if err != nil {
+		return "", err
+	}
+	return p.ID, nil
+}
+
+// DecrementStock is atomic: it only decrements if enough stock remains, then returns the resulting state for alerting.
+func (r *Repo) DecrementStock(ctx context.Context, productID string, qty int) (newStock, threshold int, title string, err error) {
+	res := r.db.WithContext(ctx).Model(&productmodels.Product{}).
+		Where("id = ? AND stock >= ?", productID, qty).
+		Update("stock", gorm.Expr("stock - ?", qty))
+	if res.Error != nil {
+		return 0, 0, "", res.Error
+	}
+	var p productmodels.Product
+	if err := r.db.WithContext(ctx).Select("stock", "low_stock_threshold", "title_tr").
+		Where("id = ?", productID).First(&p).Error; err != nil {
+		return 0, 0, "", err
+	}
+	return p.Stock, p.LowStockThreshold, p.TitleTr, nil
+}
+
 type Handler struct {
 	repo *Repo
 }

@@ -23,6 +23,7 @@ type Config struct {
 	SMTPHost          string
 	SMTPPort          string
 	MailFrom          string
+	AdminEmail        string
 }
 
 func Load() Config {
@@ -43,6 +44,7 @@ func Load() Config {
 		SMTPHost:          env("SMTP_HOST", ""),
 		SMTPPort:          env("SMTP_PORT", "587"),
 		MailFrom:          env("MAIL_FROM", "Vela Commerce <no-reply@vela.test>"),
+		AdminEmail:        env("ADMIN_EMAIL", "admin@vela.test"),
 	}
 }
 

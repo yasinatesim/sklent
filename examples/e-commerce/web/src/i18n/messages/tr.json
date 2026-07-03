@@ -95,7 +95,17 @@
     "welcome": "Hoş geldiniz!",
     "haveAccount": "Zaten hesabınız var mı?",
     "noAccount": "Henüz hesabınız yok mu?",
-    "adminHint": "Demo admin: admin@vela.test / admin12345"
+    "adminHint": "Demo admin: admin@vela.test / admin12345",
+    "forgotPasswordLink": "Şifremi unuttum",
+    "forgotPasswordTitle": "Şifremi Unuttum",
+    "forgotPasswordDesc": "E-posta adresinizi girin, sıfırlama bağlantısı gönderelim.",
+    "forgotPasswordSent": "E-posta adresiniz kayıtlıysa bir sıfırlama bağlantısı gönderildi.",
+    "forgotPasswordSubmit": "Sıfırlama Bağlantısı Gönder",
+    "resetPasswordTitle": "Yeni Şifre Belirle",
+    "resetPasswordFailed": "Bağlantı geçersiz veya süresi dolmuş.",
+    "resetPasswordSuccess": "Şifreniz güncellendi, giriş yapabilirsiniz.",
+    "resetPasswordSubmit": "Şifreyi Güncelle",
+    "newPassword": "Yeni Şifre"
   },
   "coupon": {
     "title": "Hediye Kuponunuz!",
@@ -172,6 +182,28 @@
     "couponCode": "Kupon kodu",
     "couponRequired": "Kupon kodu ve indirim yüzdesi gerekli.",
     "code": "Kod",
-    "date": "Tarih"
+    "date": "Tarih",
+    "loading": "Yükleniyor…",
+    "trackingNumber": "Takip No",
+    "shipped": "Kargolandı",
+    "save": "Kaydet",
+    "updateFailed": "Güncelleme başarısız.",
+    "orderUpdated": "Sipariş güncellendi.",
+    "stockTracking": "Stok Takibi",
+    "productName": "Ürün Adı",
+    "quantity": "Adet",
+    "addRow": "Satır Ekle",
+    "totalItems": "Toplam Satır",
+    "totalQuantity": "Toplam Stok",
+    "searchPlaceholder": "Ürün adına göre ara...",
+    "reviews": "Yorumlar",
+    "reviewAuthor": "Yazan",
+    "reviewRating": "Puan",
+    "reviewComment": "Yorum",
+    "approve": "Onayla",
+    "reject": "Reddet",
+    "pending": "Beklemede",
+    "approved": "Onaylandı",
+    "rejected": "Reddedildi"
   }
 }

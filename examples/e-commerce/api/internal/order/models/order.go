@@ -8,18 +8,18 @@ import (
 )
 
 type Order struct {
-	ID            string      `gorm:"primaryKey;type:uuid" json:"id"`
-	UserID        *string     `gorm:"type:uuid;index" json:"userId,omitempty"`
-	GuestToken    string      `gorm:"index" json:"-"`
-	Email         string      `gorm:"not null" json:"email"`
-	Status        string      `gorm:"not null;default:pending" json:"status"`
-	PaymentMethod string      `gorm:"not null" json:"paymentMethod"`
-	PaymentID     string      `json:"-"`
-	TotalCents    int64       `gorm:"not null" json:"totalCents"`
-	TrackingNo    string      `json:"trackingNo,omitempty"`
-	Items         []OrderItem `gorm:"foreignKey:OrderID" json:"items"`
-	CreatedAt     time.Time   `json:"createdAt"`
-	UpdatedAt     time.Time   `json:"-"`
+	ID             string      `gorm:"primaryKey;type:uuid" json:"id"`
+	UserID         *string     `gorm:"type:uuid;index" json:"userId,omitempty"`
+	GuestToken     string      `gorm:"index" json:"-"`
+	Email          string      `gorm:"not null" json:"email"`
+	Status         string      `gorm:"not null;default:pending" json:"status"`
+	PaymentMethod  string      `gorm:"not null" json:"paymentMethod"`
+	PaymentID      string      `json:"-"`
+	TotalCents     int64       `gorm:"not null" json:"totalCents"`
+	TrackingNumber string      `json:"trackingNumber,omitempty"`
+	Items          []OrderItem `gorm:"foreignKey:OrderID" json:"items"`
+	CreatedAt      time.Time   `json:"createdAt"`
+	UpdatedAt      time.Time   `json:"-"`
 }
 
 func (o *Order) BeforeCreate(_ *gorm.DB) error {

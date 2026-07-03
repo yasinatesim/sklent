@@ -57,3 +57,41 @@ func (s *Service) SendOrderConfirmationAsync(order OrderSummary) {
 		}
 	}()
 }
+
+// SendPasswordResetAsync never blocks the request path; a panic is recovered and logged.
+func (s *Service) SendPasswordResetAsync(to, resetURL string) {
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				s.log.Error("password reset email panic", "err", r, "to", to)
+			}
+		}()
+		m := Message{
+			To:      to,
+			Subject: "Şifre sıfırlama isteği",
+			HTML:    fmt.Sprintf("<p>Şifrenizi sıfırlamak için <a href=\"%s\">bu bağlantıya</a> tıklayın. Bağlantı 30 dakika geçerlidir.</p>", resetURL),
+		}
+		if err := s.sender.Send(context.Background(), m); err != nil {
+			s.log.Error("password reset email send failed", "err", err, "to", to)
+		}
+	}()
+}
+
+// SendLowStockAlertAsync notifies the admin mailbox when a product's stock crosses its threshold.
+func (s *Service) SendLowStockAlertAsync(adminEmail, productTitle string, currentStock int) {
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				s.log.Error("low stock alert email panic", "err", r, "product", productTitle)
+			}
+		}()
+		m := Message{
+			To:      adminEmail,
+			Subject: "Düşük stok uyarısı",
+			HTML:    fmt.Sprintf("<p>%q ürününün stoğu %d adede düştü.</p>", productTitle, currentStock),
+		}
+		if err := s.sender.Send(context.Background(), m); err != nil {
+			s.log.Error("low stock alert email send failed", "err", err, "product", productTitle)
+		}
+	}()
+}

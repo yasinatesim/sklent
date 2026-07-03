@@ -10,6 +10,8 @@ import (
 	"github.com/yasinatesim/vela-commerce/api/internal/product/models"
 	"github.com/yasinatesim/vela-commerce/api/internal/promotion/models"
 	"github.com/yasinatesim/vela-commerce/api/internal/reservation/models"
+	"github.com/yasinatesim/vela-commerce/api/internal/review/models"
+	"github.com/yasinatesim/vela-commerce/api/internal/stocktracking/models"
 	"github.com/yasinatesim/vela-commerce/api/internal/user/models"
 )
 
@@ -23,6 +25,7 @@ func AutoMigrate(db *gorm.DB) error {
 	return db.AutoMigrate(
 		&usermodels.User{},
 		&usermodels.RefreshToken{},
+		&usermodels.PasswordResetToken{},
 		&categorymodels.Category{},
 		&productmodels.Product{},
 		&ordermodels.Order{},
@@ -30,5 +33,7 @@ func AutoMigrate(db *gorm.DB) error {
 		&reservationmodels.Reservation{},
 		&promotionmodels.Promotion{},
 		&promotionmodels.Coupon{},
+		&stocktrackingmodels.StockTrackingItem{},
+		&reviewmodels.Review{},
 	)
 }

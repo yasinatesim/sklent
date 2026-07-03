@@ -69,3 +69,37 @@ func (r *Repo) RotateRefresh(ctx context.Context, rawToken string) (string, erro
 	}
 	return rt.UserID, nil
 }
+
+func (r *Repo) CreatePasswordReset(ctx context.Context, userID, rawToken string, ttl time.Duration) error {
+	pr := usermodels.PasswordResetToken{
+		UserID:    userID,
+		TokenHash: token.Hash(rawToken),
+		ExpiresAt: time.Now().Add(ttl),
+	}
+	return r.db.WithContext(ctx).Create(&pr).Error
+}
+
+// ConsumePasswordReset validates the token (found, unused, unexpired), marks it used, and returns the user ID.
+func (r *Repo) ConsumePasswordReset(ctx context.Context, rawToken string) (string, error) {
+	var pr usermodels.PasswordResetToken
+	err := r.db.WithContext(ctx).Where("token_hash = ? AND used_at IS NULL", token.Hash(rawToken)).First(&pr).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return "", ErrNotFound
+	}
+	if err != nil {
+		return "", err
+	}
+	if time.Now().After(pr.ExpiresAt) {
+		return "", ErrNotFound
+	}
+	now := time.Now()
+	if err := r.db.WithContext(ctx).Model(&pr).Update("used_at", &now).Error; err != nil {
+		return "", err
+	}
+	return pr.UserID, nil
+}
+
+func (r *Repo) UpdatePassword(ctx context.Context, userID, passwordHash string) error {
+	return r.db.WithContext(ctx).Model(&usermodels.User{}).Where("id = ?", userID).
+		Update("password_hash", passwordHash).Error
+}

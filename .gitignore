@@ -3,14 +3,14 @@
 *.env.local
 
 # go
-/api/bin/
+api/bin/
 *.test
 *.out
 
 # node / next
 node_modules/
-/web/.next/
-/web/out/
+.next/
+out/
 *.tsbuildinfo
 
 # artifacts

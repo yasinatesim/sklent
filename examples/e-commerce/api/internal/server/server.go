@@ -15,14 +15,25 @@ import (
 	"github.com/yasinatesim/vela-commerce/api/internal/order"
 	"github.com/yasinatesim/vela-commerce/api/internal/payment/iyzico"
 	"github.com/yasinatesim/vela-commerce/api/internal/product"
+	"github.com/yasinatesim/vela-commerce/api/internal/promotion"
 	"github.com/yasinatesim/vela-commerce/api/internal/reservation"
+	"github.com/yasinatesim/vela-commerce/api/internal/review"
 	"github.com/yasinatesim/vela-commerce/api/internal/server/middleware"
+	"github.com/yasinatesim/vela-commerce/api/internal/stocktracking"
 )
 
 type mailerAdapter struct{ svc *email.Service }
 
 func (m mailerAdapter) SendOrderConfirmationAsync(orderID, to string, totalCents int64) {
 	m.svc.SendOrderConfirmationAsync(email.OrderSummary{ID: orderID, Email: to, TotalCents: totalCents})
+}
+
+func (m mailerAdapter) SendPasswordResetAsync(to, resetURL string) {
+	m.svc.SendPasswordResetAsync(to, resetURL)
+}
+
+func (m mailerAdapter) SendLowStockAlertAsync(adminEmail, productTitle string, currentStock int) {
+	m.svc.SendLowStockAlertAsync(adminEmail, productTitle, currentStock)
 }
 
 func New(cfg config.Config, db *gorm.DB, log *slog.Logger) *gin.Engine {
@@ -37,18 +48,25 @@ func New(cfg config.Config, db *gorm.DB, log *slog.Logger) *gin.Engine {
 	secure := cfg.IsProduction()
 	r.Use(auth.IssueCSRF(cfg.CookieDomain, secure))
 
-	authRepo := auth.NewRepo(db)
-	authHandler := auth.NewHandler(signer, authRepo, cfg.CookieDomain, secure)
+	mailSvc := email.NewService(email.LogSender{Log: log}, log)
+	mailer := mailerAdapter{svc: mailSvc}
 
-	productHandler := product.NewHandler(product.NewRepo(db))
+	productRepo := product.NewRepo(db)
+	authRepo := auth.NewRepo(db)
+	authHandler := auth.NewHandler(signer, authRepo, cfg.CookieDomain, secure, mailer, cfg.FrontendBaseURL)
+
+	productHandler := product.NewHandler(productRepo)
 	categoryHandler := category.NewHandler(category.NewRepo(db))
 
-	reservations := reservation.NewService(db)
-	mailSvc := email.NewService(email.LogSender{Log: log}, log)
+	reservations := reservation.NewService(db, productRepo, mailer, cfg.AdminEmail)
 	orderRepo := order.NewRepo(db)
-	orderHandler := order.NewHandler(orderRepo, reservations, mailerAdapter{svc: mailSvc})
+	orderHandler := order.NewHandler(orderRepo, reservations, mailer)
 
 	iyzicoHandler := iyzico.NewHandler(orderRepo, reservations, sandboxVerifier{}, cfg.FrontendBaseURL)
+
+	promotionHandler := promotion.NewHandler(promotion.NewRepo(db))
+	stockTrackingHandler := stocktracking.NewHandler(stocktracking.NewRepo(db))
+	reviewHandler := review.NewHandler(review.NewRepo(db), productRepo)
 
 	r.GET("/healthz", health.Handler)
 
@@ -59,10 +77,14 @@ func New(cfg config.Config, db *gorm.DB, log *slog.Logger) *gin.Engine {
 		a.POST("/logout", authHandler.Logout)
 		a.POST("/refresh", authHandler.Refresh)
 		a.GET("/me", authHandler.Me)
+		a.POST("/password/forgot", auth.RateLimit(auth.Rule{Burst: 5, Interval: 3 * time.Minute}), authHandler.ForgotPassword)
+		a.POST("/password/reset", auth.RateLimit(auth.Rule{Burst: 5, Interval: 3 * time.Minute}), authHandler.ResetPassword)
 	}
 
 	r.GET("/products", productHandler.List)
 	r.GET("/products/:slug", productHandler.GetBySlug)
+	r.GET("/products/:slug/reviews", reviewHandler.List)
+	r.POST("/products/:slug/reviews", auth.RequireCSRF(), reviewHandler.Create)
 	r.GET("/categories", categoryHandler.List)
 
 	registerOrderRoutes(r, orderHandler, signer)
@@ -75,6 +97,27 @@ func New(cfg config.Config, db *gorm.DB, log *slog.Logger) *gin.Engine {
 	admin := r.Group("/admin", signer.RequireAdmin(), auth.RequireCSRF())
 	{
 		admin.POST("/products", productHandler.AdminCreate)
+
+		admin.GET("/promotions", promotionHandler.AdminListPromotions)
+		admin.POST("/promotions", promotionHandler.AdminCreatePromotion)
+		admin.PATCH("/promotions/:id", promotionHandler.AdminUpdatePromotion)
+		admin.DELETE("/promotions/:id", promotionHandler.AdminDeletePromotion)
+
+		admin.GET("/coupons", promotionHandler.AdminListCoupons)
+		admin.POST("/coupons", promotionHandler.AdminCreateCoupon)
+		admin.PATCH("/coupons/:id", promotionHandler.AdminUpdateCoupon)
+		admin.DELETE("/coupons/:id", promotionHandler.AdminDeleteCoupon)
+
+		admin.GET("/orders", orderHandler.AdminList)
+		admin.PATCH("/orders/:id/status", orderHandler.AdminUpdateStatus)
+
+		admin.GET("/stock-tracking", stockTrackingHandler.AdminList)
+		admin.POST("/stock-tracking", stockTrackingHandler.AdminCreate)
+		admin.PATCH("/stock-tracking/:id", stockTrackingHandler.AdminUpdate)
+		admin.DELETE("/stock-tracking/:id", stockTrackingHandler.AdminDelete)
+
+		admin.GET("/reviews", reviewHandler.AdminList)
+		admin.PATCH("/reviews/:id/status", reviewHandler.AdminUpdateStatus)
 	}
 
 	return r

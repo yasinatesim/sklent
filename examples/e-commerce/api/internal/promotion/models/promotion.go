@@ -13,8 +13,8 @@ type Promotion struct {
 	DiscountType  string    `gorm:"not null" json:"discountType"`
 	DiscountValue int       `gorm:"not null" json:"discountValue"`
 	ScopeType     string    `gorm:"not null;default:all" json:"scopeType"`
-	ProductIDs    string    `json:"-"`
-	CategoryIDs   string    `json:"-"`
+	ProductIDs    string    `gorm:"column:product_ids" json:"-"`
+	CategoryIDs   string    `gorm:"column:category_ids" json:"-"`
 	MinCartCents  int64     `json:"minCartCents"`
 	Active        bool      `gorm:"not null;default:true" json:"active"`
 	CreatedAt     time.Time `json:"-"`
@@ -34,6 +34,8 @@ type Coupon struct {
 	DiscountType  string    `gorm:"not null" json:"discountType"`
 	DiscountValue int       `gorm:"not null" json:"discountValue"`
 	ScopeType     string    `gorm:"not null;default:all" json:"scopeType"`
+	ProductIDs    string    `gorm:"column:product_ids" json:"-"`
+	CategoryIDs   string    `gorm:"column:category_ids" json:"-"`
 	MinCartCents  int64     `json:"minCartCents"`
 	Active        bool      `gorm:"not null;default:true" json:"active"`
 	CreatedAt     time.Time `json:"-"`

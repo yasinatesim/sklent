@@ -95,7 +95,17 @@
     "welcome": "Welcome!",
     "haveAccount": "Already have an account?",
     "noAccount": "Don't have an account yet?",
-    "adminHint": "Demo admin: admin@vela.test / admin12345"
+    "adminHint": "Demo admin: admin@vela.test / admin12345",
+    "forgotPasswordLink": "Forgot password?",
+    "forgotPasswordTitle": "Forgot Password",
+    "forgotPasswordDesc": "Enter your email and we'll send a reset link.",
+    "forgotPasswordSent": "If that email is registered, a reset link has been sent.",
+    "forgotPasswordSubmit": "Send Reset Link",
+    "resetPasswordTitle": "Set a New Password",
+    "resetPasswordFailed": "This link is invalid or has expired.",
+    "resetPasswordSuccess": "Your password has been updated, you can sign in now.",
+    "resetPasswordSubmit": "Update Password",
+    "newPassword": "New Password"
   },
   "coupon": {
     "title": "Your Gift Coupon!",
@@ -172,6 +182,28 @@
     "couponCode": "Coupon code",
     "couponRequired": "Coupon code and discount % are required.",
     "code": "Code",
-    "date": "Date"
+    "date": "Date",
+    "loading": "Loading…",
+    "trackingNumber": "Tracking No.",
+    "shipped": "Shipped",
+    "save": "Save",
+    "updateFailed": "Update failed.",
+    "orderUpdated": "Order updated.",
+    "stockTracking": "Stock Tracking",
+    "productName": "Product Name",
+    "quantity": "Quantity",
+    "addRow": "Add Row",
+    "totalItems": "Total Rows",
+    "totalQuantity": "Total Stock",
+    "searchPlaceholder": "Search by product name...",
+    "reviews": "Reviews",
+    "reviewAuthor": "Author",
+    "reviewRating": "Rating",
+    "reviewComment": "Comment",
+    "approve": "Approve",
+    "reject": "Reject",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected"
   }
 }

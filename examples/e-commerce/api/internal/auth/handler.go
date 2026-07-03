@@ -13,16 +13,26 @@ import (
 
 const refreshTTL = 7 * 24 * time.Hour
 const refreshCookie = "refresh_token"
+const passwordResetTTL = 30 * time.Minute
 
-type Handler struct {
-	signer       *Signer
-	repo         *Repo
-	cookieDomain string
-	secure       bool
+type Mailer interface {
+	SendPasswordResetAsync(to, resetURL string)
 }
 
-func NewHandler(signer *Signer, repo *Repo, cookieDomain string, secure bool) *Handler {
-	return &Handler{signer: signer, repo: repo, cookieDomain: cookieDomain, secure: secure}
+type Handler struct {
+	signer          *Signer
+	repo            *Repo
+	cookieDomain    string
+	secure          bool
+	mailer          Mailer
+	frontendBaseURL string
+}
+
+func NewHandler(signer *Signer, repo *Repo, cookieDomain string, secure bool, mailer Mailer, frontendBaseURL string) *Handler {
+	return &Handler{
+		signer: signer, repo: repo, cookieDomain: cookieDomain, secure: secure,
+		mailer: mailer, frontendBaseURL: frontendBaseURL,
+	}
 }
 
 type credentials struct {
@@ -100,6 +110,58 @@ func (h *Handler) Refresh(c *gin.Context) {
 		return
 	}
 	h.issueSession(c, u)
+}
+
+type forgotPasswordInput struct {
+	Email string `json:"email" binding:"required,email"`
+}
+
+// ForgotPassword always responds 200 with a generic message, whether or not the email exists.
+func (h *Handler) ForgotPassword(c *gin.Context) {
+	var in forgotPasswordInput
+	if err := c.ShouldBindJSON(&in); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid_input"})
+		return
+	}
+	u, err := h.repo.FindByEmail(c.Request.Context(), in.Email)
+	if err == nil {
+		raw, _, genErr := token.Generate()
+		if genErr == nil {
+			if storeErr := h.repo.CreatePasswordReset(c.Request.Context(), u.ID, raw, passwordResetTTL); storeErr == nil {
+				resetURL := h.frontendBaseURL + "/sifre-sifirla?token=" + raw
+				h.mailer.SendPasswordResetAsync(u.Email, resetURL)
+			}
+		}
+	}
+	c.JSON(http.StatusOK, gin.H{"ok": true})
+}
+
+type resetPasswordInput struct {
+	Token       string `json:"token" binding:"required"`
+	NewPassword string `json:"newPassword" binding:"required,min=8,max=128"`
+}
+
+func (h *Handler) ResetPassword(c *gin.Context) {
+	var in resetPasswordInput
+	if err := c.ShouldBindJSON(&in); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid_input"})
+		return
+	}
+	userID, err := h.repo.ConsumePasswordReset(c.Request.Context(), in.Token)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid_or_expired_token"})
+		return
+	}
+	hash, err := HashPassword(in.NewPassword)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal"})
+		return
+	}
+	if err := h.repo.UpdatePassword(c.Request.Context(), userID, hash); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"ok": true})
 }
 
 func (h *Handler) issueSession(c *gin.Context, u *usermodels.User) {

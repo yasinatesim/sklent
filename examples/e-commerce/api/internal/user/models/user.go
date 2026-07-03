@@ -40,3 +40,19 @@ func (r *RefreshToken) BeforeCreate(_ *gorm.DB) error {
 	}
 	return nil
 }
+
+type PasswordResetToken struct {
+	ID        string `gorm:"primaryKey;type:uuid"`
+	UserID    string `gorm:"index;not null"`
+	TokenHash string `gorm:"uniqueIndex;not null"`
+	ExpiresAt time.Time
+	UsedAt    *time.Time
+	CreatedAt time.Time
+}
+
+func (t *PasswordResetToken) BeforeCreate(_ *gorm.DB) error {
+	if t.ID == "" {
+		t.ID = uuid.NewString()
+	}
+	return nil
+}

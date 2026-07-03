@@ -1,54 +1,67 @@
 "use client";
 
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useToastStore } from "@/stores/toastStore";
+import {
+  createPromotion,
+  deletePromotion,
+  fetchPromotions,
+  updatePromotion,
+  type Promotion,
+} from "@/lib/promotions-api";
+import { REQUEST_STATUS, type RequestStatus } from "@/constants/requestStatus";
 import styles from "../admin.module.scss";
-
-type Campaign = {
-  name: string;
-  disc: number;
-  active: boolean;
-};
-
-const STORAGE_KEY = "vcAdminCamps";
-const SEED: Campaign[] = [
-  { name: "Yaza Merhaba", disc: 15, active: true },
-  { name: "Sürpriz Hediye", disc: 10, active: true },
-];
 
 const AdminCampaignsPage = () => {
   const t = useTranslations("admin");
   const showToast = useToastStore((s) => s.show);
-  const [items, setItems] = useState<Campaign[]>([]);
+  const [status, setStatus] = useState<RequestStatus>(REQUEST_STATUS.IDLE);
+  const [items, setItems] = useState<Promotion[]>([]);
   const [name, setName] = useState("");
   const [disc, setDisc] = useState(10);
 
-  useEffect(() => {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    setItems(raw ? JSON.parse(raw) : SEED);
+  const load = useCallback(async () => {
+    setStatus(REQUEST_STATUS.LOADING);
+    try {
+      setItems(await fetchPromotions());
+      setStatus(REQUEST_STATUS.SUCCESS);
+    } catch {
+      setStatus(REQUEST_STATUS.ERROR);
+    }
   }, []);
 
-  const persist = (next: Campaign[]) => {
-    setItems(next);
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-  };
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  const handleAddSubmit = (event: FormEvent) => {
+  const handleAddSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (!name || !disc) {
       showToast(t("campaignRequired"));
       return;
     }
-    persist([...items, { name, disc, active: true }]);
+    const res = await createPromotion({
+      name, discountType: "percent", discountValue: disc, scopeType: "all", minCartCents: 0,
+    });
+    if (!res.ok) {
+      showToast(t("createFailed"));
+      return;
+    }
     setName("");
     showToast(`${t("created")}: ${name}`);
+    load();
   };
 
-  const toggle = (index: number) =>
-    persist(items.map((c, i) => (i === index ? { ...c, active: !c.active } : c)));
+  const toggle = async (p: Promotion) => {
+    await updatePromotion(p.id, { active: !p.active });
+    load();
+  };
 
-  const remove = (index: number) => persist(items.filter((_, i) => i !== index));
+  const remove = async (id: string) => {
+    await deletePromotion(id);
+    load();
+  };
 
   return (
     <div>
@@ -66,6 +79,7 @@ const AdminCampaignsPage = () => {
           + {t("create")}
         </button>
       </form>
+      {status === REQUEST_STATUS.LOADING ? <p>{t("loading")}</p> : null}
       <table className={styles.table}>
         <thead>
           <tr>
@@ -76,20 +90,20 @@ const AdminCampaignsPage = () => {
           </tr>
         </thead>
         <tbody>
-          {items.map((c, i) => (
-            <tr key={c.name}>
-              <td>{c.name}</td>
-              <td>%{c.disc}</td>
+          {items.map((p) => (
+            <tr key={p.id}>
+              <td>{p.name}</td>
+              <td>%{p.discountValue}</td>
               <td>
-                <span className={`${styles.status} ${c.active ? styles.statusActive : styles.statusPassive}`}>
-                  {c.active ? t("active") : t("passive")}
+                <span className={`${styles.status} ${p.active ? styles.statusActive : styles.statusPassive}`}>
+                  {p.active ? t("active") : t("passive")}
                 </span>
               </td>
               <td>
-                <button className="btn btnOutline btnSm" onClick={() => toggle(i)}>
-                  {c.active ? t("makePassive") : t("makeActive")}
+                <button className="btn btnOutline btnSm" onClick={() => toggle(p)}>
+                  {p.active ? t("makePassive") : t("makeActive")}
                 </button>{" "}
-                <button className="btn btnDanger btnSm" onClick={() => remove(i)}>
+                <button className="btn btnDanger btnSm" onClick={() => remove(p.id)}>
                   {t("delete")}
                 </button>
               </td>

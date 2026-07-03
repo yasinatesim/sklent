@@ -20,8 +20,14 @@ func IssueCSRF(cookieDomain string, secure bool) gin.HandlerFunc {
 	}
 }
 
+// RequireCSRF only checks state-changing methods; GET/HEAD/OPTIONS have no side effects to forge.
 func RequireCSRF() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		switch c.Request.Method {
+		case http.MethodGet, http.MethodHead, http.MethodOptions:
+			c.Next()
+			return
+		}
 		cookie, err := c.Cookie(constants.CSRF_COOKIE)
 		header := c.GetHeader(constants.CSRF_HEADER)
 		if err != nil || cookie == "" || header == "" || cookie != header {

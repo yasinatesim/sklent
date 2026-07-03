@@ -21,6 +21,8 @@ const AdminSidebar = () => {
     { href: `/${locale}/admin/kampanyalar`, label: `🏷️ ${t("campaigns")}`, exact: false },
     { href: `/${locale}/admin/kuponlar`, label: `🎫 ${t("coupons")}`, exact: false },
     { href: `/${locale}/admin/siparisler`, label: `📋 ${t("orders")}`, exact: false },
+    { href: `/${locale}/admin/stok-takibi`, label: `📈 ${t("stockTracking")}`, exact: false },
+    { href: `/${locale}/admin/yorumlar`, label: `💬 ${t("reviews")}`, exact: false },
   ];
 
   const isActive = (href: string, exact: boolean): boolean =>

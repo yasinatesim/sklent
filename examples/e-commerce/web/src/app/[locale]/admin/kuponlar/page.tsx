@@ -1,54 +1,61 @@
 "use client";
 
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useToastStore } from "@/stores/toastStore";
+import { createCoupon, deleteCoupon, fetchCoupons, updateCoupon, type Coupon } from "@/lib/promotions-api";
+import { REQUEST_STATUS, type RequestStatus } from "@/constants/requestStatus";
 import styles from "../admin.module.scss";
-
-type Coupon = {
-  code: string;
-  disc: number;
-  active: boolean;
-};
-
-const STORAGE_KEY = "vcAdminCoups";
-const SEED: Coupon[] = [
-  { code: "VELA15", disc: 15, active: true },
-  { code: "BAHAR10", disc: 10, active: true },
-];
 
 const AdminCouponsPage = () => {
   const t = useTranslations("admin");
   const showToast = useToastStore((s) => s.show);
+  const [status, setStatus] = useState<RequestStatus>(REQUEST_STATUS.IDLE);
   const [items, setItems] = useState<Coupon[]>([]);
   const [code, setCode] = useState("");
   const [disc, setDisc] = useState(10);
 
-  useEffect(() => {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    setItems(raw ? JSON.parse(raw) : SEED);
+  const load = useCallback(async () => {
+    setStatus(REQUEST_STATUS.LOADING);
+    try {
+      setItems(await fetchCoupons());
+      setStatus(REQUEST_STATUS.SUCCESS);
+    } catch {
+      setStatus(REQUEST_STATUS.ERROR);
+    }
   }, []);
 
-  const persist = (next: Coupon[]) => {
-    setItems(next);
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-  };
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  const handleAddSubmit = (event: FormEvent) => {
+  const handleAddSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (!code || !disc) {
       showToast(t("couponRequired"));
       return;
     }
-    persist([...items, { code: code.toUpperCase(), disc, active: true }]);
+    const res = await createCoupon({
+      code, discountType: "percent", discountValue: disc, scopeType: "all", minCartCents: 0,
+    });
+    if (!res.ok) {
+      showToast(t("createFailed"));
+      return;
+    }
     setCode("");
     showToast(`${t("created")}: ${code.toUpperCase()}`);
+    load();
   };
 
-  const toggle = (index: number) =>
-    persist(items.map((c, i) => (i === index ? { ...c, active: !c.active } : c)));
+  const toggle = async (c: Coupon) => {
+    await updateCoupon(c.id, { active: !c.active });
+    load();
+  };
 
-  const remove = (index: number) => persist(items.filter((_, i) => i !== index));
+  const remove = async (id: string) => {
+    await deleteCoupon(id);
+    load();
+  };
 
   return (
     <div>
@@ -66,6 +73,7 @@ const AdminCouponsPage = () => {
           + {t("create")}
         </button>
       </form>
+      {status === REQUEST_STATUS.LOADING ? <p>{t("loading")}</p> : null}
       <table className={styles.table}>
         <thead>
           <tr>
@@ -76,20 +84,20 @@ const AdminCouponsPage = () => {
           </tr>
         </thead>
         <tbody>
-          {items.map((c, i) => (
-            <tr key={c.code}>
+          {items.map((c) => (
+            <tr key={c.id}>
               <td>{c.code}</td>
-              <td>%{c.disc}</td>
+              <td>%{c.discountValue}</td>
               <td>
                 <span className={`${styles.status} ${c.active ? styles.statusActive : styles.statusPassive}`}>
                   {c.active ? t("active") : t("passive")}
                 </span>
               </td>
               <td>
-                <button className="btn btnOutline btnSm" onClick={() => toggle(i)}>
+                <button className="btn btnOutline btnSm" onClick={() => toggle(c)}>
                   {c.active ? t("makePassive") : t("makeActive")}
                 </button>{" "}
-                <button className="btn btnDanger btnSm" onClick={() => remove(i)}>
+                <button className="btn btnDanger btnSm" onClick={() => remove(c.id)}>
                   {t("delete")}
                 </button>
               </td>

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -13,6 +14,8 @@ import (
 	"github.com/yasinatesim/vela-commerce/api/internal/order/models"
 	"github.com/yasinatesim/vela-commerce/api/internal/token"
 )
+
+var ErrInvalidStatus = errors.New("order: invalid status")
 
 var ErrNotFound = errors.New("order: not found")
 
@@ -61,6 +64,33 @@ func (r *Repo) ListForUser(ctx context.Context, userID string) ([]ordermodels.Or
 	var out []ordermodels.Order
 	err := r.db.WithContext(ctx).Where("user_id = ?", userID).Order("created_at desc").Find(&out).Error
 	return out, err
+}
+
+func (r *Repo) AdminList(ctx context.Context, status string, limit, offset int) ([]ordermodels.Order, error) {
+	var out []ordermodels.Order
+	q := r.db.WithContext(ctx)
+	if status != "" {
+		q = q.Where("status = ?", status)
+	}
+	err := q.Preload("Items").Order("created_at desc").Limit(limit).Offset(offset).Find(&out).Error
+	return out, err
+}
+
+func (r *Repo) AdminUpdateStatus(ctx context.Context, orderID, status, trackingNumber string) error {
+	validStatuses := map[string]bool{
+		constants.ORDER_STATUS_PENDING:   true,
+		constants.ORDER_STATUS_PAID:      true,
+		constants.ORDER_STATUS_SHIPPED:   true,
+		constants.ORDER_STATUS_CANCELLED: true,
+	}
+	if !validStatuses[status] {
+		return ErrInvalidStatus
+	}
+	updates := map[string]any{"status": status}
+	if trackingNumber != "" {
+		updates["tracking_number"] = trackingNumber
+	}
+	return r.db.WithContext(ctx).Model(&ordermodels.Order{}).Where("id = ?", orderID).Updates(updates).Error
 }
 
 type Reserver interface {
@@ -177,4 +207,39 @@ func (h *Handler) GetByID(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, o)
+}
+
+func (h *Handler) AdminList(c *gin.Context) {
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "50"))
+	if err != nil || limit <= 0 || limit > 200 {
+		limit = 50
+	}
+	offset, err := strconv.Atoi(c.DefaultQuery("offset", "0"))
+	if err != nil || offset < 0 {
+		offset = 0
+	}
+	items, err := h.repo.AdminList(c.Request.Context(), c.Query("status"), limit, offset)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"items": items})
+}
+
+type adminUpdateStatusInput struct {
+	Status         string `json:"status" binding:"required,oneof=pending paid shipped cancelled"`
+	TrackingNumber string `json:"trackingNumber" binding:"max=100"`
+}
+
+func (h *Handler) AdminUpdateStatus(c *gin.Context) {
+	var in adminUpdateStatusInput
+	if err := c.ShouldBindJSON(&in); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid_input"})
+		return
+	}
+	if err := h.repo.AdminUpdateStatus(c.Request.Context(), c.Param("id"), in.Status, in.TrackingNumber); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "update_failed"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"ok": true})
 }

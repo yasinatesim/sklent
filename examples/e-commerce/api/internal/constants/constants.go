@@ -36,3 +36,9 @@ const (
 	CSRF_HEADER = "X-CSRF-Token"
 	CSRF_COOKIE = "csrf_token"
 )
+
+const (
+	REVIEW_STATUS_PENDING  = "pending"
+	REVIEW_STATUS_APPROVED = "approved"
+	REVIEW_STATUS_REJECTED = "rejected"
+)
