@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/yasinatesim/vela-commerce/api/internal/constants"
-	reviewmodels "github.com/yasinatesim/vela-commerce/api/internal/review/models"
+	"github.com/yasinatesim/vela-commerce/api/internal/review/models"
 )
 
 var ErrNotFound = errors.New("review: not found")

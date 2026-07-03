@@ -6,7 +6,7 @@ import (
 
 	"gorm.io/gorm"
 
-	promotionmodels "github.com/yasinatesim/vela-commerce/api/internal/promotion/models"
+	"github.com/yasinatesim/vela-commerce/api/internal/promotion/models"
 )
 
 var ErrNotFound = errors.New("promotion: not found")

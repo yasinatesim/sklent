@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
-	stocktrackingmodels "github.com/yasinatesim/vela-commerce/api/internal/stocktracking/models"
+	"github.com/yasinatesim/vela-commerce/api/internal/stocktracking/models"
 )
 
 var ErrNotFound = errors.New("stocktracking: not found")

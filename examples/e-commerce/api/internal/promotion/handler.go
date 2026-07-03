@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	promotionmodels "github.com/yasinatesim/vela-commerce/api/internal/promotion/models"
+	"github.com/yasinatesim/vela-commerce/api/internal/promotion/models"
 )
 
 func joinIDs(ids []string) string { return strings.Join(ids, ",") }
