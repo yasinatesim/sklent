@@ -1,5 +1,7 @@
 name: CI
 
+# Self-hosted only pays off on a PRIVATE repo (metered Actions minutes); this repo is public, so ci.yml uses ubuntu-latest and this workflow has no runner to target.
+
 on:
   pull_request:
   push:
