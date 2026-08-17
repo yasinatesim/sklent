@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"strings"
 )
 
 type Message struct {
@@ -94,4 +95,31 @@ func (s *Service) SendLowStockAlertAsync(adminEmail, productTitle string, curren
 			s.log.Error("low stock alert email send failed", "err", err, "product", productTitle)
 		}
 	}()
+}
+
+// SendNewOrderAlertAsync tells an admin recipient that an order arrived on one of the sales channels.
+func (s *Service) SendNewOrderAlertAsync(to, sourceLabel, orderNumber, customerName string, totalCents int64) {
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				s.log.Error("new order alert email panic", "err", r, "orderNumber", orderNumber)
+			}
+		}()
+		m := Message{
+			To:      to,
+			Subject: fmt.Sprintf("Yeni sipariş — %s #%s", sourceLabel, sanitizeHeader(orderNumber)),
+			HTML: fmt.Sprintf(
+				"<h2>Yeni sipariş geldi</h2><p><b>Kanal:</b> %s</p><p><b>Sipariş No:</b> %s</p><p><b>Müşteri:</b> %s</p><p><b>Toplam:</b> %.2f TL</p>",
+				sourceLabel, orderNumber, customerName, float64(totalCents)/100,
+			),
+		}
+		if err := s.sender.Send(context.Background(), m); err != nil {
+			s.log.Error("new order alert email send failed", "err", err, "to", to)
+		}
+	}()
+}
+
+// sanitizeHeader strips CR/LF from marketplace-supplied text; a newline in a subject splits it into forged headers.
+func sanitizeHeader(v string) string {
+	return strings.TrimSpace(strings.NewReplacer("\r", " ", "\n", " ").Replace(v))
 }

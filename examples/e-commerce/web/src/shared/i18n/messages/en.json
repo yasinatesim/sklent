@@ -206,7 +206,16 @@
     "reject": "Reject",
     "pending": "Pending",
     "approved": "Approved",
-    "rejected": "Rejected"
+    "rejected": "Rejected",
+    "settings": "Settings",
+    "orderNotifications": "Order notification emails",
+    "orderNotificationsHint": "Every order from the selected channel emails this address. Marketplace orders arrive over the webhook, site orders when the order is placed.",
+    "channel": "Channel",
+    "recipient": "Email address",
+    "enabled": "Active",
+    "disabled": "Inactive",
+    "enable": "Activate",
+    "disable": "Deactivate"
   },
   "productBadge": {
     "bestseller": "Bestseller",

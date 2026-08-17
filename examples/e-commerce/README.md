@@ -30,10 +30,10 @@ end with a single `docker compose up`.
 | Cart | Guest (session cookie) + member; 15-minute stock reservation hold |
 | Payment | Iyzico 3D Secure (sandbox) under `api/internal/payment/iyzico` |
 | Promotions | Percent / fixed-TL, cart/product/category scope, coupon engine — pure `Evaluate` |
-| Marketplace | Skeleton clients in `api/internal/marketplace/{hb,ty}` (category tree, attributes, publish) |
+| Marketplace | Skeleton clients in `api/internal/marketplace/{hb,ty}` (category tree, attributes, publish) + order webhook receivers under `/webhooks/{hb,ty}`, basic-auth gated |
 | LLM / RAG | Pluggable provider registry + ChromaDB-backed product copy (`api/internal/rag`) |
 | Invoice | GIB e-Arşiv proxy concept (host-allowlisted) |
-| Email | SMTP + templated order/shipping mails, sent off the request path |
+| Email | SMTP + templated order/shipping mails, sent off the request path. Per-channel order alert rules (site / HB / TY) at `/admin/settings` |
 | Deploy | `docker compose up`: Postgres + ChromaDB + Go API + Next.js web |
 
 ## 🚀 Getting Started

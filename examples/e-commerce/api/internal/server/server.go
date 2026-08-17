@@ -13,6 +13,7 @@ import (
 	"github.com/yasinatesim/vela-commerce/api/internal/email"
 	"github.com/yasinatesim/vela-commerce/api/internal/health"
 	"github.com/yasinatesim/vela-commerce/api/internal/order"
+	"github.com/yasinatesim/vela-commerce/api/internal/ordernotify"
 	"github.com/yasinatesim/vela-commerce/api/internal/payment/iyzico"
 	"github.com/yasinatesim/vela-commerce/api/internal/product"
 	"github.com/yasinatesim/vela-commerce/api/internal/promotion"
@@ -35,6 +36,33 @@ func (m mailerAdapter) SendPasswordResetAsync(to, resetURL string) {
 
 func (m mailerAdapter) SendLowStockAlertAsync(adminEmail, productTitle string, currentStock int) {
 	m.svc.SendLowStockAlertAsync(adminEmail, productTitle, currentStock)
+}
+
+// notifierAdapter lets the order handler raise the admin "an order arrived" alert without importing the notifier.
+type notifierAdapter struct {
+	mailerAdapter
+	notifier *ordernotify.Service
+}
+
+func (n notifierAdapter) NotifyNewOrderAsync(source, orderNumber, customerName string, totalCents int64) {
+	n.notifier.NotifyNewOrderAsync(source, orderNumber, customerName, totalCents)
+}
+
+// registerMarketplaceWebhooks mirrors the HB and TY push contracts; the path segments are theirs, not ours, and the bases stay abbreviated because TY rejects any webhook URL containing "trendyol".
+func registerMarketplaceWebhooks(r *gin.Engine, cfg config.Config, h *ordernotify.WebhookHandler) {
+	basicAuth := gin.BasicAuth(gin.Accounts{cfg.MPWebhookUser: cfg.MPWebhookPassword})
+
+	hb := r.Group("/webhooks/hb", basicAuth)
+	hb.POST("/orders", h.HBCreateOrder)
+	hb.POST("/packages", h.Acknowledge)
+	hb.PUT("/lineitems/:lineItemId/cancel", h.Acknowledge)
+	hb.PUT("/orders/:orderNumber/shippingaddress", h.Acknowledge)
+	for _, segment := range []string{"unpack", "intransit", "deliver", "undeliver"} {
+		hb.PUT("/packages/:packageNumber/"+segment, h.Acknowledge)
+	}
+
+	ty := r.Group("/webhooks/ty", basicAuth)
+	ty.POST("/orders", h.TYOrder)
 }
 
 func New(cfg config.Config, db *gorm.DB, log *slog.Logger) *gin.Engine {
@@ -60,8 +88,12 @@ func New(cfg config.Config, db *gorm.DB, log *slog.Logger) *gin.Engine {
 	categoryHandler := category.NewHandler(category.NewRepo(db))
 
 	reservations := reservation.NewService(db, productRepo, mailer, cfg.AdminEmail)
+	orderNotifyRepo := ordernotify.NewRepo(db)
+	orderNotifySvc := ordernotify.NewService(orderNotifyRepo, mailSvc, log)
+	orderNotifyHandler := ordernotify.NewHandler(orderNotifyRepo, orderNotifySvc)
+
 	orderRepo := order.NewRepo(db)
-	orderHandler := order.NewHandler(orderRepo, reservations, mailer)
+	orderHandler := order.NewHandler(orderRepo, reservations, notifierAdapter{mailerAdapter: mailer, notifier: orderNotifySvc})
 
 	iyzicoHandler := iyzico.NewHandler(orderRepo, reservations, sandboxVerifier{}, cfg.FrontendBaseURL)
 
@@ -126,6 +158,16 @@ func New(cfg config.Config, db *gorm.DB, log *slog.Logger) *gin.Engine {
 
 		admin.GET("/reviews", reviewHandler.AdminList)
 		admin.PATCH("/reviews/:id/status", reviewHandler.AdminUpdateStatus)
+
+		admin.GET("/order-notifications", orderNotifyHandler.AdminList)
+		admin.POST("/order-notifications", orderNotifyHandler.AdminCreate)
+		admin.PATCH("/order-notifications/:id", orderNotifyHandler.AdminUpdate)
+		admin.DELETE("/order-notifications/:id", orderNotifyHandler.AdminDelete)
+	}
+
+	// Webhook routes stay unregistered until the marketplaces have credentials to authenticate with.
+	if cfg.MPWebhookUser != "" && cfg.MPWebhookPassword != "" {
+		registerMarketplaceWebhooks(r, cfg, ordernotify.NewWebhookHandler(orderNotifySvc))
 	}
 
 	return r

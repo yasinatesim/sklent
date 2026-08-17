@@ -28,7 +28,7 @@ checkout reservation, two marketplace skeleton clients (`hb`, `ty`), LLM/RAG pro
 | Frontend | Next.js, React 19, CSS Modules + SCSS, next-intl (TR + EN, JSON-driven) |
 | Admin | `/admin` panel for catalog, promotions, coupons, orders (status + tracking), manual stock tracking, review moderation |
 | Auth | JWT 15m access + 7d rotating refresh, httpOnly cookie, CSRF, rate limit |
-| Marketplace | Clients in `api/internal/marketplace/{hb,ty}` — partial; verify before claiming sync works |
+| Marketplace | Clients in `api/internal/marketplace/{hb,ty}` — partial; verify before claiming sync works. Order push receivers live in `api/internal/ordernotify/webhook.go` (`/webhooks/hb`, `/webhooks/ty`; the bases are abbreviated because TY rejects any webhook URL containing "trendyol"), basic auth from `MP_WEBHOOK_USER`/`MP_WEBHOOK_PASSWORD`, unregistered when unset |
 | Catalog search | Server-side: diacritic-insensitive `unaccent()` match across both locale titles, description and slug; price range, in-stock and category filters; `newest`/`price_asc`/`price_desc` sort validated against a closed set; paginated with `MAX_PAGE_SIZE`; `/products/facets` returns category counts and the price bounds of the *filtered* set. `ParseListQuery` drops every hostile value before the repository sees it |
 | LLM | Pluggable provider registry under `api/internal/llm/`; AES-256-GCM encrypted API keys |
 | RAG | `api/internal/rag` — ChromaDB retrieval + LLM generation; deterministic offline fallback |
@@ -38,7 +38,7 @@ checkout reservation, two marketplace skeleton clients (`hb`, `ty`), LLM/RAG pro
 | Shipping | `api/internal/shipping` — flat rate with an optional free-shipping threshold, read from env |
 | Cart | Guest (session cookie) + member; Zustand; 15-min reservation hold |
 | Promotions | Percent/fixed-TL, cart/product/category scope, coupon engine |
-| Email | SMTP + React-Email-style templates, sent off the request path. Order confirmation, password reset, low-stock alert |
+| Email | SMTP + React-Email-style templates, sent off the request path. Order confirmation, password reset, low-stock alert, and the admin new-order alert driven by `order_notification_rules` (channel + recipient, managed at `/admin/settings`) |
 | Deploy | `docker compose up`: Postgres + ChromaDB + API + web |
 
 ## Non-negotiable Rules

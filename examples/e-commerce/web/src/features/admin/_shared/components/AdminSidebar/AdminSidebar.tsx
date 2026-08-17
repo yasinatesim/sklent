@@ -31,6 +31,7 @@ const AdminSidebar = () => {
     { href: localePath(locale, ADMIN_ROUTES.STOCK_TRACKING), label: `📈 ${t("stockTracking")}`, exact: false },
     { href: localePath(locale, ADMIN_ROUTES.REVIEWS), label: `💬 ${t("reviews")}`, exact: false },
     { href: localePath(locale, ADMIN_ROUTES.RETURNS), label: `↩️ ${tReturn("title")}`, exact: false },
+    { href: localePath(locale, ADMIN_ROUTES.SETTINGS), label: `⚙️ ${t("settings")}`, exact: false },
   ];
 
   const isActive = (href: string, exact: boolean): boolean =>

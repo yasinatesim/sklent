@@ -99,6 +99,7 @@ type Reserver interface {
 
 type Mailer interface {
 	SendOrderConfirmationAsync(orderID, email string, totalCents int64)
+	NotifyNewOrderAsync(source, orderNumber, customerName string, totalCents int64)
 }
 
 type Handler struct {
@@ -168,6 +169,7 @@ func (h *Handler) Place(c *gin.Context) {
 		_ = h.reserver.Reserve(c.Request.Context(), o.ID, it.ProductID, it.Quantity)
 	}
 	h.mailer.SendOrderConfirmationAsync(o.ID, o.Email, o.TotalCents)
+	h.mailer.NotifyNewOrderAsync(constants.ORDER_SOURCE_SITE, o.ID, o.Email, o.TotalCents)
 
 	c.JSON(http.StatusCreated, gin.H{"orderId": o.ID, "totalCents": total, "trackToken": rawToken})
 }

@@ -24,6 +24,7 @@ export const ADMIN_ROUTES = {
   STOCK_TRACKING: "/admin/stock-tracking",
   REVIEWS: "/admin/reviews",
   RETURNS: "/admin/returns",
+  SETTINGS: "/admin/settings",
 } as const;
 
 export type Route = (typeof ROUTES)[keyof typeof ROUTES];

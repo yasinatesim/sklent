@@ -206,7 +206,16 @@
     "reject": "Reddet",
     "pending": "Beklemede",
     "approved": "Onaylandı",
-    "rejected": "Reddedildi"
+    "rejected": "Reddedildi",
+    "settings": "Ayarlar",
+    "orderNotifications": "Sipariş bildirim e-postaları",
+    "orderNotificationsHint": "Seçtiğiniz kanaldan sipariş geldiğinde bu adrese e-posta gönderilir. Pazaryeri siparişleri webhook'tan, site siparişleri sipariş oluşunca bildirilir.",
+    "channel": "Kanal",
+    "recipient": "E-posta adresi",
+    "enabled": "Aktif",
+    "disabled": "Pasif",
+    "enable": "Aktifleştir",
+    "disable": "Pasifleştir"
   },
   "productBadge": {
     "bestseller": "Çok Satan",

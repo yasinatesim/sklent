@@ -31,6 +31,8 @@ services:
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-vela}:${POSTGRES_PASSWORD:-vela}@postgres:5432/${POSTGRES_DB:-vela}?sslmode=disable
       CHROMA_URL: http://chromadb:8000
+      MP_WEBHOOK_USER: ${MP_WEBHOOK_USER:-}
+      MP_WEBHOOK_PASSWORD: ${MP_WEBHOOK_PASSWORD:-}
     ports:
       - "8100:8100"
 

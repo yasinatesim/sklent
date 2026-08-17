@@ -57,3 +57,10 @@ const (
 	RETURN_REASON_CHANGED_MIND = "changed_mind"
 	RETURN_REASON_OTHER        = "other"
 )
+
+// ORDER_SOURCE_* names the channel an order arrived from; notification rules key off it.
+const (
+	ORDER_SOURCE_SITE = "site"
+	ORDER_SOURCE_HB   = "HB"
+	ORDER_SOURCE_TY   = "TY"
+)

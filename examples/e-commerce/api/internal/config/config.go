@@ -24,6 +24,8 @@ type Config struct {
 	SMTPPort          string
 	MailFrom          string
 	AdminEmail        string
+	MPWebhookUser     string
+	MPWebhookPassword string
 }
 
 func Load() Config {
@@ -45,6 +47,8 @@ func Load() Config {
 		SMTPPort:          env("SMTP_PORT", "587"),
 		MailFrom:          env("MAIL_FROM", "Vela Commerce <no-reply@vela.test>"),
 		AdminEmail:        env("ADMIN_EMAIL", "admin@vela.test"),
+		MPWebhookUser:     env("MP_WEBHOOK_USER", ""),
+		MPWebhookPassword: env("MP_WEBHOOK_PASSWORD", ""),
 	}
 }
 
