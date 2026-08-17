@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/yasinatesim/vela-commerce/api/internal/constants"
 )
 
 type OrderStore interface {
@@ -46,38 +48,38 @@ func (h *Handler) Callback(c *gin.Context) {
 	mdStatus := c.PostForm("mdStatus")
 
 	if orderID == "" || paymentID == "" {
-		h.redirectFE(c, "/odeme/hata")
+		h.redirectFE(c, constants.FRONTEND_PATH_CHECKOUT_ERROR)
 		return
 	}
 	if !ThreeDSAuthorized(mdStatus) {
 		_ = h.reservations.ReleaseByOrder(ctx, orderID)
-		h.redirectFE(c, "/odeme/hata")
+		h.redirectFE(c, constants.FRONTEND_PATH_CHECKOUT_ERROR)
 		return
 	}
 
 	fin, err := h.verifier.Verify(ctx, orderID, paymentID)
 	if err != nil {
 		_ = h.reservations.ReleaseByOrder(ctx, orderID)
-		h.redirectFE(c, "/odeme/hata")
+		h.redirectFE(c, constants.FRONTEND_PATH_CHECKOUT_ERROR)
 		return
 	}
 
 	total, err := h.orders.GetTotalCents(ctx, orderID)
 	if err != nil || !AmountMatches(fin.PaidPrice, total) {
 		_ = h.reservations.ReleaseByOrder(ctx, orderID)
-		h.redirectFE(c, "/odeme/hata")
+		h.redirectFE(c, constants.FRONTEND_PATH_CHECKOUT_ERROR)
 		return
 	}
 
 	if err := h.orders.MarkPaid(ctx, orderID, fin.PaymentID); err != nil {
-		h.redirectFE(c, "/odeme/hata")
+		h.redirectFE(c, constants.FRONTEND_PATH_CHECKOUT_ERROR)
 		return
 	}
 	if err := h.reservations.CommitByOrder(ctx, orderID); err != nil {
-		h.redirectFE(c, "/odeme/hata")
+		h.redirectFE(c, constants.FRONTEND_PATH_CHECKOUT_ERROR)
 		return
 	}
-	h.redirectFE(c, "/odeme/basarili?order="+orderID)
+	h.redirectFE(c, constants.FRONTEND_PATH_CHECKOUT_SUCCESS+"?order="+orderID)
 }
 
 func (h *Handler) redirectFE(c *gin.Context, path string) {

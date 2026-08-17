@@ -243,3 +243,20 @@ func (h *Handler) AdminUpdateStatus(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"ok": true})
 }
+
+// StatusAndEmail exposes just enough of an order for other domains (returns, invoicing) to make
+// their own eligibility decisions without importing the order handler.
+func (r *Repo) StatusAndEmail(ctx context.Context, orderID string) (string, string, error) {
+	var row struct {
+		Status string
+		Email  string
+	}
+	err := r.db.WithContext(ctx).Model(&ordermodels.Order{}).
+		Select("status", "email").
+		Where("id = ?", orderID).
+		Take(&row).Error
+	if err != nil {
+		return "", "", err
+	}
+	return row.Status, row.Email, nil
+}

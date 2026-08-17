@@ -65,5 +65,6 @@ jobs:
           node-version: '24'
       - run: npm ci
       - run: npm run lint
+      - run: npm run stylelint
       - run: npm run type-check
       - run: npm test

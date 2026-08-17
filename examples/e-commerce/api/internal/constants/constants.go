@@ -42,3 +42,18 @@ const (
 	REVIEW_STATUS_APPROVED = "approved"
 	REVIEW_STATUS_REJECTED = "rejected"
 )
+
+const (
+	RETURN_STATUS_REQUESTED = "requested"
+	RETURN_STATUS_APPROVED  = "approved"
+	RETURN_STATUS_REJECTED  = "rejected"
+	RETURN_STATUS_REFUNDED  = "refunded"
+)
+
+const (
+	RETURN_REASON_DAMAGED      = "damaged"
+	RETURN_REASON_WRONG_ITEM   = "wrong_item"
+	RETURN_REASON_NOT_AS_SHOWN = "not_as_shown"
+	RETURN_REASON_CHANGED_MIND = "changed_mind"
+	RETURN_REASON_OTHER        = "other"
+)

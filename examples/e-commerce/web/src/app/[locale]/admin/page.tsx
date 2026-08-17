@@ -1,8 +1,13 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import WeeklyOrdersChart from "@/components/admin/WeeklyOrdersChart";
-import styles from "./admin.module.scss";
+
+import { STATUS_TONE } from "@/features/admin/_shared/types/statusBadge.types";
+
+import StatusBadge from "@/features/admin/_shared/components/StatusBadge";
+import WeeklyOrdersChart from "@/features/admin/dashboard/components/WeeklyOrdersChart";
+
+import styles from "@/features/admin/_shared/styles/admin.module.scss";
 
 const RECENT_ORDERS = [
   { id: "#VC-2026-042", customer: "Ayşe Yılmaz", amount: "₺2.499", status: "active" },
@@ -54,9 +59,10 @@ const DashboardPage = () => {
                 <td>{o.customer}</td>
                 <td>{o.amount}</td>
                 <td>
-                  <span className={`${styles.status} ${o.status === "active" ? styles.statusActive : styles.statusPassive}`}>
-                    {o.status === "active" ? t("preparing") : t("cancelled")}
-                  </span>
+                  <StatusBadge
+                    tone={o.status === "active" ? STATUS_TONE.ACTIVE : STATUS_TONE.PASSIVE}
+                    label={o.status === "active" ? t("preparing") : t("cancelled")}
+                  />
                 </td>
               </tr>
             ))}

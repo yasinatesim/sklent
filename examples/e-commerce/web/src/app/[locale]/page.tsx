@@ -1,10 +1,18 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import ProductCard from "@/components/ProductCard/ProductCard";
-import CategoryCard from "@/components/CategoryCard/CategoryCard";
-import BoxIcon from "@/components/icons/BoxIcon";
-import TruckIcon from "@/components/icons/TruckIcon";
-import SupportIcon from "@/components/icons/SupportIcon";
-import { fetchProducts, fetchCategories, type Product, type Category } from "@/lib/api";
+
+import { localePath,ROUTES } from "@/shared/constants/routes";
+
+import type { Category, Product } from "@/shared/types/catalog.types";
+
+import BoxIcon from "@/shared/ui/icons/BoxIcon";
+import SupportIcon from "@/shared/ui/icons/SupportIcon";
+import TruckIcon from "@/shared/ui/icons/TruckIcon";
+
+import { fetchCategories, fetchProducts } from "@/features/web/catalog/api/products";
+
+import CategoryCard from "@/features/web/catalog/components/CategoryCard";
+import ProductCard from "@/features/web/catalog/components/ProductCard";
+
 import styles from "./page.module.scss";
 
 type HomePageProps = {
@@ -47,10 +55,10 @@ const HomePage = async ({ params }: HomePageProps) => {
             <h1 className={styles.heroTitle}>{t.rich("heroTitle", { em: (c) => <em>{c}</em> })}</h1>
             <p className={styles.heroText}>{t("heroText")}</p>
             <div className={styles.heroButtons}>
-              <a className="btn btnPrimary" href={`/${locale}/kategori/all`}>
+              <a className="btn btnPrimary" href={localePath(locale, `${ROUTES.CATEGORY}/all`)}>
                 {t("heroCta")}
               </a>
-              <a className="btn btnOutline" href={`/${locale}/kategori/all`}>
+              <a className="btn btnOutline" href={localePath(locale, `${ROUTES.CATEGORY}/all`)}>
                 {t("allProducts")}
               </a>
             </div>

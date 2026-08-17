@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { isGibRequest } from "@/lib/gib-proxy";
+
+import { isGibRequest } from "@/shared/helpers/gibProxy";
 
 export const GET = async (request: Request) => {
   const { searchParams } = new URL(request.url);

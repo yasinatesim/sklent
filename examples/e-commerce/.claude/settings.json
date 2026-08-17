@@ -9,27 +9,51 @@
       "Bash(gh *)",
       "Bash(.claude/hooks/*)"
     ],
-    "deny": ["Bash(rm -rf /*)"]
+    "deny": [
+      "Bash(rm -rf /*)"
+    ]
   },
-
   "hooks": {
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
         "filePattern": "api/**/*.go",
         "hooks": [
-          { "type": "command", "command": ".claude/hooks/post-edit-go.sh" },
-          { "type": "command", "command": ".claude/hooks/no-long-comments.sh" },
-          { "type": "command", "command": ".claude/hooks/constants-guard-trigger.sh" }
+          {
+            "type": "command",
+            "command": ".claude/hooks/post-edit-go.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/no-long-comments.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/constants-guard-trigger.sh"
+          }
         ]
       },
       {
         "matcher": "Edit|Write",
         "filePattern": "web/src/**/*.{ts,tsx}",
         "hooks": [
-          { "type": "command", "command": ".claude/hooks/post-edit-ts.sh" },
-          { "type": "command", "command": ".claude/hooks/no-long-comments.sh" },
-          { "type": "command", "command": ".claude/hooks/constants-guard-trigger.sh" }
+          {
+            "type": "command",
+            "timeout": 30,
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-multi-comp.sh\""
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/post-edit-ts.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/no-long-comments.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/constants-guard-trigger.sh"
+          }
         ]
       }
     ],
@@ -37,9 +61,54 @@
       {
         "matcher": "Bash",
         "hooks": [
-          { "type": "command", "command": ".claude/hooks/pre-commit-verify.sh" },
-          { "type": "command", "command": ".claude/hooks/enforce-branch-base.sh" },
-          { "type": "command", "command": ".claude/hooks/block-pr-merge.sh" }
+          {
+            "type": "command",
+            "command": ".claude/hooks/pre-commit-verify.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/enforce-branch-base.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/block-pr-merge.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/memory-location.sh\""
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 5,
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"Read .claude/memory/MEMORY.md first and follow its links.\"}}'"
+          },
+          {
+            "type": "command",
+            "timeout": 10,
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-rules.sh\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 5,
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/stop-memory-reminder.sh\""
+          }
         ]
       }
     ]

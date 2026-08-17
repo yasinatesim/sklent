@@ -17,6 +17,7 @@ import (
 	"github.com/yasinatesim/vela-commerce/api/internal/product"
 	"github.com/yasinatesim/vela-commerce/api/internal/promotion"
 	"github.com/yasinatesim/vela-commerce/api/internal/reservation"
+	"github.com/yasinatesim/vela-commerce/api/internal/returnreq"
 	"github.com/yasinatesim/vela-commerce/api/internal/review"
 	"github.com/yasinatesim/vela-commerce/api/internal/server/middleware"
 	"github.com/yasinatesim/vela-commerce/api/internal/stocktracking"
@@ -68,6 +69,9 @@ func New(cfg config.Config, db *gorm.DB, log *slog.Logger) *gin.Engine {
 	stockTrackingHandler := stocktracking.NewHandler(stocktracking.NewRepo(db))
 	reviewHandler := review.NewHandler(review.NewRepo(db), productRepo)
 
+	returnRepo := returnreq.NewRepository(db)
+	returnHandler := returnreq.NewHandler(returnreq.NewService(returnRepo, orderRepo), returnRepo)
+
 	r.GET("/healthz", health.Handler)
 
 	a := r.Group("/auth")
@@ -82,10 +86,12 @@ func New(cfg config.Config, db *gorm.DB, log *slog.Logger) *gin.Engine {
 	}
 
 	r.GET("/products", productHandler.List)
+	r.GET("/products/facets", productHandler.Facets)
 	r.GET("/products/:slug", productHandler.GetBySlug)
 	r.GET("/products/:slug/reviews", reviewHandler.List)
 	r.POST("/products/:slug/reviews", auth.RequireCSRF(), reviewHandler.Create)
 	r.GET("/categories", categoryHandler.List)
+	r.POST("/returns", auth.RequireCSRF(), returnHandler.Create)
 
 	registerOrderRoutes(r, orderHandler, signer)
 
@@ -98,6 +104,8 @@ func New(cfg config.Config, db *gorm.DB, log *slog.Logger) *gin.Engine {
 	{
 		admin.POST("/products", productHandler.AdminCreate)
 
+		admin.GET("/returns", returnHandler.AdminList)
+		admin.PATCH("/returns/:id", returnHandler.AdminUpdateStatus)
 		admin.GET("/promotions", promotionHandler.AdminListPromotions)
 		admin.POST("/promotions", promotionHandler.AdminCreatePromotion)
 		admin.PATCH("/promotions/:id", promotionHandler.AdminUpdatePromotion)

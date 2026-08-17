@@ -177,6 +177,11 @@ Building a production-grade e-commerce platform requires coordinating many subsy
 
 ## 6. Non-Functional Requirements
 
+> **Maintainability is a first-class NFR here.** The architecture rules in §9.1 and their
+> enforcement in §9.2 are acceptance criteria, not style guidance: the project is considered
+> regressed if any structure rule drops back to `warn` or its violation count rises above zero.
+
+
 | ID | Requirement | Target |
 |---|---|---|
 | NFR-01 | Backend language | Go 1.25 |
@@ -269,6 +274,102 @@ Building a production-grade e-commerce platform requires coordinating many subsy
 │    16       │   │   0.5.20       │   │   (Email)      │
 └─────────────┘   └────────────────┘   └────────────────┘
 ```
+
+### 9.1 Frontend Module Architecture
+
+The web app is organised as **feature modules behind a thin route shell**, not as a flat
+`components/ + lib/` tree. This is a hard requirement, not a preference: it is what makes the
+codebase safe for agents to extend without an operator reviewing every file placement.
+
+```
+web/src/
+  app/                      route shell ONLY — page.tsx is a one-line re-export
+  features/
+    admin/<module>/         admin panel features
+    web/<module>/           public site features
+  shared/                   constants, types, helpers, hooks, stores, ui, layout, styles, test
+```
+
+Module anatomy — the folder set is **closed**; any other folder name at module root is a violation:
+
+```
+<module>/
+  page.tsx  page.module.scss  constants.ts
+  components/<Comp>/<Comp>.tsx + <Comp>.module.scss + index.ts + __tests__/
+  views/<View>/             status-dispatch views only
+  api/  hooks/  helpers/  store/  styles/  types/  assets/  __tests__/
+  [id]/  new/               nested route = sub-module, same anatomy
+```
+
+Import direction is one-way — `shared → feature → app`. Sibling feature modules may only reach each
+other through an edge **declared with a written reason**. The rule is not prohibition; it is that
+every cross-module dependency was a decision somebody recorded.
+
+### 9.2 Architecture Enforcement (Requirement, not documentation)
+
+Prose rules decay. Every structural rule above must be **machine-checked in CI and locally**:
+
+| Requirement | Mechanism |
+|---|---|
+| Folder/file layout, style placement, eponymous component folders | `project-structure/folder-structure` (`web/scripts/projectStructure.mjs`) |
+| Import direction + declared cross-module edges | `project-structure/independent-modules` (`web/scripts/independentModules.mjs`) |
+| Exported types live in `types/` | `no-restricted-syntax` |
+| Import order mirrors the layers | `simple-import-sort` (auto-fix) |
+| No unused imports | `unused-imports` (auto-fix) |
+| Code smells, complexity, duplicated branches | `sonarjs` |
+
+**Acceptance criterion:** each rule reaches zero violations and is then set to `error`. A rule
+parked at `warn` does not satisfy this requirement — see `MODULE_MIGRATION.md` for current counters
+and the phase plan.
+
+### 9.3 Agent Operating Requirements
+
+The repository ships an agent ecosystem under `.claude/`; these are product requirements because
+they determine whether generated code is safe to merge:
+
+- **Rules in context before the first edit.** `.claude/SESSION_RULES.md` is injected by a
+  SessionStart hook. Recalling a rule during code review means the wrong code already exists.
+- **Durable memory in-repo.** `.claude/memory/` is committed, so a fresh clone reproduces the same
+  agent behaviour. A hook pins the write location.
+- **Mechanical guardrails over instructions.** Hooks block direct commits to protected branches,
+  block PR merges by the agent, block multi-line comment blocks, and run the auto-fixable lint lane
+  on every edit.
+- **Periodic dead-code sweep** with a documented never-delete list, because static analysers cannot
+  see reflection-driven calls or string-path asset references.
+
+### 9.4 Catalog Search, Filtering and Sorting
+
+Search runs on the server, never by filtering a fully-downloaded catalog in the browser. The match
+is Turkish diacritic-insensitive (`unaccent()`), so "gumus" finds "gümüş", and it covers both locale
+titles, the description and the slug — a product surfaces even when the query matches something
+other than the leading title.
+
+Filters (category, price range, in-stock) and sort (`newest`, `price_asc`, `price_desc`) are part of
+the same query. **The sort value is matched against a closed set** and never interpolated into the
+ORDER BY. Page size is capped, so an unbounded `pageSize` cannot be used as a denial-of-service
+lever, and a reversed price range is corrected rather than silently returning nothing.
+
+`/products/facets` returns counts for the *same filtered set* the list describes, except that the
+category facet ignores the selected category — otherwise choosing one category would hide every
+other option.
+
+### 9.5 Returns, Shipping and Invoicing
+
+**Returns.** A buyer may open a return only once the order is `shipped`, only with a known reason,
+and only when no other return is still open for that order. The flow is a single transition table
+(`requested → approved → refunded`, `requested → rejected`; both leaves terminal) shared by the API
+and mirrored in the admin UI, so the screen can never offer a move the server will reject.
+
+**Shipping.** One flat charge with an optional free-shipping threshold, both read from env. A zero
+threshold means free shipping is disabled — never that everything ships free.
+
+**Invoicing (GIB e-Arşiv).** The invoice is a GIB `RG_BASITFATURA` payload, not a generic
+document: per-year sequential numbering, VAT split out of the gross total, TCKN/VKN validation, and
+the Turkish amount-in-words line GIB prints on the invoice. Issuing is refused for an order that is
+not `paid` or `shipped`, and refused when the lines do not sum to the order total. The portal
+session is held **in process memory only** (`InMemoryGIBSessionStore`) — a restart forcing a fresh
+login is the intended behaviour, and persisting a live GIB credential is treated as a security
+defect.
 
 ## 10. Data Model (Core Entities)
 

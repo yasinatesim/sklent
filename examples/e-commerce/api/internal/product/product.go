@@ -72,12 +72,22 @@ type Handler struct {
 func NewHandler(repo *Repo) *Handler { return &Handler{repo: repo} }
 
 func (h *Handler) List(c *gin.Context) {
-	items, err := h.repo.ListPublished(c.Request.Context(), c.Query("category"))
+	q := ParseListQuery(c.Request.URL.Query())
+	items, pagination, err := h.repo.List(c.Request.Context(), q)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"items": items})
+	c.JSON(http.StatusOK, gin.H{"items": items, "pagination": pagination})
+}
+
+func (h *Handler) Facets(c *gin.Context) {
+	facets, err := h.repo.Facets(c.Request.Context(), ParseListQuery(c.Request.URL.Query()))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal"})
+		return
+	}
+	c.JSON(http.StatusOK, facets)
 }
 
 func (h *Handler) GetBySlug(c *gin.Context) {

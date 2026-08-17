@@ -49,9 +49,28 @@ BRAID (Bounded Reasoning for Autonomous Inference and Decisions, arXiv 2512.1595
 Tümü [`examples/e-commerce/.claude/`](examples/e-commerce/.claude) altında:
 
 - **`agents/`** -- `wtf-code-reviewer` diff'i `wtf-go`, `wtf-js-react`, `wtf-security`, `wtf-ux-playwright`'a paralel gönderir. Ayrıca `braid-solver`, `constants-guard`, `issue-auditor`.
-- **`skills/`** -- `braid-plan`, `spec-driven-development`, `coverage-gate`, `playwright-snapshot`, `ship-pr`, `issue-create`, `security-pentest` (web/api/network), `intended-vs-implemented`.
-- **`references/`** -- dilden bağımsız kodlama standartları, backend/frontend/güvenlik standartları, git-flow ve BRAID modeli.
-- **`hooks/`** -- aliaslı Go import'larını, korumalı branch'lere direkt commit'leri, agent merge'lerini ve 2 satırlık yorumları engelleyen shell script'leri. Commit öncesi CI-aynası doğrulaması çalıştırır.
+- **`skills/`** -- `braid-plan`, `spec-driven-development`, `coverage-gate`, `playwright-snapshot`, `ship-pr`, `issue-create`, `security-pentest` (web/api/network), `intended-vs-implemented`, `evidence-based-debugging`, `ponytail` ve reviewer skill'leri `wtf-go` / `wtf-js-react` / `wtf-security`.
+- **`references/`** -- dilden bağımsız kodlama standartları, backend/frontend/güvenlik standartları, git-flow, BRAID modeli, dil bazlı kod kalitesi ret kriterleri ve **`project-structure.md`** -- üretilen her dosyanın uyması gereken kanonik modül yerleşimi.
+- **`hooks/`** -- aliaslı Go import'larını, korumalı branch'lere direkt commit'leri, agent merge'lerini ve 2 satırlık yorumları engelleyen shell script'leri. Commit öncesi CI-aynası doğrulaması çalıştırır, oturum başında kuralları context'e enjekte eder, memory yazımını repo içine sabitler ve her düzenlemede otomatik düzeltilebilir lint'i çalıştırır.
+- **`SESSION_RULES.md`** -- kuralların, ilk düzenlemeden **önce** context'te olması gereken alt kümesi; SessionStart hook'u ile enjekte edilir. Code review'da hatırlanan kural, geç kalmış kuraldır.
+- **`memory/`** -- repo içinde kalıcı gerçekler. Commit'lendiği için temiz bir klon aynı agent davranışını üretir; bir hook yazım yerini sabit tutar.
+
+### Mimari, düz yazıyla değil lint ile denetlenir
+
+Çoğu agent kurulumunun atladığı kısım: **dosya yerleşimi ve modül sınırları mekanik olarak denetlenir.**
+
+| Denetlenen | Nasıl |
+|---|---|
+| Modül yerleşimi, eponim component klasörleri, stil yerleşimi | `project-structure/folder-structure` |
+| Import yönü (`shared -> feature -> app`) ve tanımlı modül kenarları | `project-structure/independent-modules` |
+| Export edilen tipler `types/` altında | `no-restricted-syntax` |
+| Import sırası katmanları yansıtır; kullanılmayan import yok | `simple-import-sort`, `unused-imports` (otomatik düzeltir) |
+| Karmaşıklık, birebir aynı dallar, yanıltıcı girinti | `sonarjs` |
+
+Kardeş modüller birbirini yalnızca **gerekçesi yazılmış** bir kenar üzerinden import edebilir. Amaç
+yasaklamak değil -- her modüller arası bağımlılığın birinin yazdığı bir karar olması. Faz planı ve
+"her sayaç sıfıra inmeden kural `warn`'dan `error`'a çevrilmez" kuralı için bkz.
+[`MODULE_MIGRATION.md`](examples/e-commerce/MODULE_MIGRATION.md).
 
 ## Örnek: Vela Commerce
 

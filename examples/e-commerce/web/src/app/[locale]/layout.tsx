@@ -1,15 +1,20 @@
-import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
+
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
-import { routing } from "@/i18n/routing";
-import { fetchCategories } from "@/lib/api";
-import ClientBootstrap from "@/components/layout/ClientBootstrap";
-import Header from "@/components/layout/Header";
-import CategoryBar from "@/components/layout/CategoryBar";
-import Footer from "@/components/layout/Footer";
-import Toast from "@/components/Toast/Toast";
-import CouponModal from "@/components/CouponModal/CouponModal";
+import type { ReactNode } from "react";
+
+import CategoryBar from "@/shared/layout/CategoryBar";
+import ClientBootstrap from "@/shared/layout/ClientBootstrap";
+import Footer from "@/shared/layout/Footer";
+import Header from "@/shared/layout/Header";
+import Toast from "@/shared/ui/Toast";
+
+import { fetchCategories } from "@/features/web/catalog/api/products";
+
+import CouponModal from "@/features/web/checkout/components/CouponModal";
+
+import { routing } from "@/shared/i18n/routing";
 
 type LocaleLayoutProps = {
   children: ReactNode;

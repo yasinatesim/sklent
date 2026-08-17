@@ -49,9 +49,28 @@ BRAID (Bounded Reasoning for Autonomous Inference and Decisions, arXiv 2512.1595
 Everything in [`examples/e-commerce/.claude/`](examples/e-commerce/.claude):
 
 - **`agents/`** -- `wtf-code-reviewer` dispatches a diff to `wtf-go`, `wtf-js-react`, `wtf-security`, `wtf-ux-playwright` in parallel. Also `braid-solver`, `constants-guard`, `issue-auditor`.
-- **`skills/`** -- `braid-plan`, `spec-driven-development`, `coverage-gate`, `playwright-snapshot`, `ship-pr`, `issue-create`, `security-pentest` (web/api/network), `intended-vs-implemented`.
-- **`references/`** -- language-agnostic coding standards, backend/frontend/security standards, git-flow, and the BRAID mental model.
-- **`hooks/`** -- shell scripts that block aliased Go imports, direct commits to protected branches, agent-initiated merges, and 2-line comments. Runs CI-mirror verify before commit.
+- **`skills/`** -- `braid-plan`, `spec-driven-development`, `coverage-gate`, `playwright-snapshot`, `ship-pr`, `issue-create`, `security-pentest` (web/api/network), `intended-vs-implemented`, `evidence-based-debugging`, `ponytail`, plus the reviewer skills `wtf-go` / `wtf-js-react` / `wtf-security`.
+- **`references/`** -- language-agnostic coding standards, backend/frontend/security standards, git-flow, the BRAID mental model, per-language code-quality rejection criteria, and **`project-structure.md`** -- the canonical module layout every generated file must satisfy.
+- **`hooks/`** -- shell scripts that block aliased Go imports, direct commits to protected branches, agent-initiated merges, and 2-line comments. Runs CI-mirror verify before commit, injects the session rules at start-up, pins memory writes to the repo, and runs the auto-fixable lint lane on every edit.
+- **`SESSION_RULES.md`** -- the subset of the rules that must be in context *before* the first edit, injected by a SessionStart hook. A rule recalled during code review is a rule that arrived too late.
+- **`memory/`** -- durable, in-repo facts. Committed, so a fresh clone reproduces the same agent behaviour; a hook keeps the write location fixed.
+
+### Architecture enforced by lint, not by prose
+
+The part most agent setups miss: **file placement and module boundaries are checked mechanically.**
+
+| What is enforced | How |
+|---|---|
+| Module layout, eponymous component folders, style placement | `project-structure/folder-structure` |
+| Import direction (`shared -> feature -> app`) and declared cross-module edges | `project-structure/independent-modules` |
+| Exported types live in `types/` | `no-restricted-syntax` |
+| Import order mirrors the layers; no unused imports | `simple-import-sort`, `unused-imports` (auto-fix) |
+| Complexity, duplicated branches, misleading indentation | `sonarjs` |
+
+Sibling modules cannot import each other unless the edge is **declared with a reason**. The goal is
+not prohibition -- it is that every cross-module dependency was a decision someone wrote down. See
+[`MODULE_MIGRATION.md`](examples/e-commerce/MODULE_MIGRATION.md) for the phase plan and the rule
+that each counter must reach zero before its rule flips from `warn` to `error`.
 
 ## The example: Vela Commerce
 
